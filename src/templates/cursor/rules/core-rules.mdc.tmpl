@@ -1,0 +1,14 @@
+---
+description: Core coding constraints for {{PROJECT_NAME}} (token-lean; details in .ai/rules.md)
+globs: "**/*"
+alwaysApply: true
+---
+
+# Core rules
+
+- Read `.ai/rules.md` for full standards; obey stack row for {{LANGUAGE}} / {{FRAMEWORK}}
+- Max **200** lines/file, **50** lines/function; early returns; no commented-out code in commits
+- Run `{{LINT_CMD}}` before hand-off; fix or explain waivers
+- Do not commit secrets or log tokens/PII
+- Touch tests when behavior changes (`{{TEST_CMD}}`) or document the gap
+- Use `docs/CONVENTIONS.md` for stack-specific style; load other `docs/*` only when needed

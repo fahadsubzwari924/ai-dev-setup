@@ -1,0 +1,58 @@
+# {{PROJECT_NAME}} — Claude Code
+
+## Identity
+
+| Field | Value |
+|-------|-------|
+| Language | {{LANGUAGE}} |
+| Framework | {{FRAMEWORK}} |
+| Database | {{DATABASE}} |
+
+## Core stack (required)
+
+| System | Location | Role |
+|--------|----------|------|
+| Superpowers (obra) | `vendor/superpowers/`, skills in `.claude/skills/` | Workflow engine: brainstorming → design → plans → TDD → review — use these skills for every non-trivial task |
+| Agency Agents | `vendor/agency-agents/`, agents in `.claude/agents/` | Specialist execution: pick the agent that matches the task from `.ai/agents.md` |
+
+Do not treat Superpowers or Agency as optional add-ons. If `vendor/` is missing, run `npx ai-dev-setup init` without `--skip-vendor`.
+
+## Read first (onboarding)
+
+| Order | File |
+|-------|------|
+| 1 | `.ai/rules.md` |
+| 2 | `.ai/workflow.md` |
+| 3 | `docs/ARCHITECTURE.md` (fill if empty) |
+
+Load other `docs/*` only when the task touches that area.
+
+## Operating rules
+
+- Prefer repo scripts: test `{{TEST_CMD}}`, lint `{{LINT_CMD}}`, build `{{BUILD_CMD}}`
+- Keep replies short; point to paths instead of pasting large files
+- After structural change, update `docs/ARCHITECTURE.md` in the same PR when behavior crosses modules
+- Let Superpowers skills drive phase gates; align with `.ai/workflow.md` without duplicating long prose here
+
+## Slash commands
+
+| Command | Use |
+|---------|-----|
+| `/kickoff` | New feature: scope, risks, plan |
+| `/review` | Pre-merge review checklist |
+| `/ship` | Release/merge readiness |
+
+## Docs index
+
+| Topic | Path |
+|-------|------|
+| Conventions | `docs/CONVENTIONS.md` |
+| Testing | `docs/TESTING-STRATEGY.md` |
+| API | `docs/API-PATTERNS.md` |
+| Errors | `docs/ERROR-HANDLING.md` |
+| Security | `docs/SECURITY.md` |
+
+## Out of scope for this file
+
+- Do not duplicate `.ai/rules.md`
+- Do not paste long examples—add them under `docs/` and link

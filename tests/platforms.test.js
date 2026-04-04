@@ -1,0 +1,54 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { getPlatform } from '../src/platforms/registry.js';
+import '../src/platforms/claude-code.js';
+import '../src/platforms/cursor.js';
+
+const sampleConfig = {
+  projectName: 'demo',
+  language: 'TypeScript',
+  framework: 'Next.js',
+  testCmd: 'npm test',
+  lintCmd: 'npm run lint',
+  buildCmd: 'npm run build',
+  database: 'PostgreSQL',
+  stacks: ['ts', 'nextjs'],
+};
+
+describe('platforms', () => {
+  it('claude platform returns expected paths', async () => {
+    const p = getPlatform('claude');
+    assert.ok(p);
+    const files = await p.getFiles(sampleConfig);
+    const paths = files.map((f) => f.path).sort();
+    assert.deepEqual(paths, [
+      '.claude/commands/kickoff.md',
+      '.claude/commands/review.md',
+      '.claude/commands/ship.md',
+      '.claude/settings.json',
+      'CLAUDE.md',
+    ]);
+    const claudeMd = files.find((f) => f.path === 'CLAUDE.md');
+    assert.ok(claudeMd?.content.includes('Superpowers'));
+    assert.ok(claudeMd?.content.includes('Agency'));
+  });
+
+  it('cursor platform returns expected paths and MDC frontmatter', async () => {
+    const p = getPlatform('cursor');
+    assert.ok(p);
+    const files = await p.getFiles(sampleConfig);
+    const paths = files.map((f) => f.path).sort();
+    assert.deepEqual(paths, [
+      '.cursor/rules/agents.mdc',
+      '.cursor/rules/core-rules.mdc',
+      '.cursor/rules/review.mdc',
+      '.cursor/rules/workflow.mdc',
+      '.cursorrules',
+    ]);
+    const core = files.find((f) => f.path === '.cursor/rules/core-rules.mdc');
+    assert.ok(core?.content.startsWith('---'));
+    assert.match(core.content, /alwaysApply:\s*true/);
+    const workflow = files.find((f) => f.path === '.cursor/rules/workflow.mdc');
+    assert.match(workflow.content, /alwaysApply:\s*false/);
+  });
+});

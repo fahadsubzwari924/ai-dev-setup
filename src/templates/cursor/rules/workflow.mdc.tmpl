@@ -1,0 +1,12 @@
+---
+description: Feature workflow and TDD expectations for {{PROJECT_NAME}}
+globs: ""
+alwaysApply: false
+---
+
+# Workflow
+
+- Follow `.ai/workflow.md` phases: understand → design → plan → implement → review → ship
+- TDD when harness exists: red → green → refactor; add minimal harness if missing and user agrees
+- Each plan task lists **path**, **intent**, and **verification** (command or observable outcome)
+- Map errors per `docs/ERROR-HANDLING.md`; API shape per `docs/API-PATTERNS.md` when touching HTTP

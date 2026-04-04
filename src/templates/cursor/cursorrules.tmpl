@@ -1,0 +1,36 @@
+# {{PROJECT_NAME}} — Cursor
+
+## Core stack (required)
+
+| System | Location | Role |
+|--------|----------|------|
+| Superpowers | `vendor/superpowers/`, `.cursor-plugin/plugin.json` | Workflow engine — use bundled skills for planning, TDD, review |
+| Agency Agents | `vendor/agency-agents/`, rules `agency-*.mdc` in `.cursor/rules/` | Specialist agents — select per `.ai/agents.md` |
+
+If `vendor/` or `.cursor-plugin/` is missing, run `npx ai-dev-setup init` without `--skip-vendor`.
+
+## Pointers (do not duplicate)
+
+| File | Purpose |
+|------|---------|
+| `.ai/rules.md` | Coding standards, anti-patterns, doc index |
+| `.ai/workflow.md` | Lifecycle, TDD, review checklist |
+| `.ai/agents.md` | Specialist activation |
+| `docs/*` | Deep references—load only when relevant |
+
+## Project facts
+
+- Language: {{LANGUAGE}} — Framework: {{FRAMEWORK}} — DB: {{DATABASE}}
+- Commands: `{{TEST_CMD}}` · `{{LINT_CMD}}` · `{{BUILD_CMD}}`
+
+## Behavior
+
+- Answer briefly; cite paths instead of pasting large files
+- Prefer existing patterns in-repo over generic tutorials
+- After architectural change, update `docs/ARCHITECTURE.md` in the same change when behavior crosses modules
+
+## Rules layout
+
+- `core-rules.mdc` — always on (keep lean)
+- `workflow.mdc`, `review.mdc`, `agents.mdc` — load when matching the task
+- `agency-*.mdc` — Agency specialist rules (on demand)

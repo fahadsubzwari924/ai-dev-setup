@@ -1,0 +1,65 @@
+# Coding rules — {{PROJECT_NAME}}
+
+## Stack
+
+| Field | Value |
+|-------|-------|
+| Language | {{LANGUAGE}} |
+| Framework | {{FRAMEWORK}} |
+| Database | {{DATABASE}} |
+| Test | `{{TEST_CMD}}` |
+| Lint | `{{LINT_CMD}}` |
+| Build | `{{BUILD_CMD}}` |
+
+## Token efficiency (assistant)
+
+| # | Rule |
+|---|------|
+| 1 | Read only files needed for the current task; prefer ripgrep over opening whole trees |
+| 2 | Summarize long outputs; paste minimal excerpts with path:line |
+| 3 | Do not repeat `.ai/` or `docs/` content in chat—cite paths |
+| 4 | Propose edits in small batches; one concern per patch where possible |
+| 5 | Stop when success criteria are met; avoid scope creep |
+| 6 | Ask one clarifying question only when blocked |
+
+## Style
+
+- Prefer pure functions, early returns, shallow nesting (max 3 levels)
+- Max **200** lines per file; split when exceeded
+- Max **50** lines per function; extract helpers
+- Name booleans `is/has/should`; avoid `data`/`info` without context
+- No commented-out code in commits
+
+## Architecture
+
+- Feature-based folders: `features/<name>/{api,ui,lib,types}`
+- Dependencies point inward: UI → application → domain → infrastructure
+- Keep framework adapters at the edges; core logic framework-agnostic
+
+## Load these docs on demand
+
+| Topic | File |
+|-------|------|
+| System shape | `docs/ARCHITECTURE.md` |
+| Stack conventions | `docs/CONVENTIONS.md` |
+| Tests | `docs/TESTING-STRATEGY.md` |
+| HTTP API | `docs/API-PATTERNS.md` |
+| Errors | `docs/ERROR-HANDLING.md` |
+| Security | `docs/SECURITY.md` |
+
+## Git
+
+- Conventional commits: `type(scope): summary` (types: feat, fix, docs, refactor, test, chore)
+- Branch names: `type/short-description` or `issue-123-short-description`
+- PRs: purpose, risk, test plan, rollback
+
+## Anti-patterns
+
+1. Do not add global mutable singletons for domain state
+2. Do not catch errors without handling or rethrow with context
+3. Do not commit secrets, tokens, or `.env*` contents
+4. Do not skip tests for new behavior unless explicitly out of scope
+5. Do not widen public API surface without a documented need
+6. Do not mix formatting-only changes with functional changes
+7. Do not depend on unspecified order where the domain requires stability
+8. Do not silence linter rules project-wide to land a change

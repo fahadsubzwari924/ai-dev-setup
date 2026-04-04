@@ -1,0 +1,31 @@
+{
+  "name": "ai-dev-setup",
+  "version": "1.0.0",
+  "description": "One command to scaffold optimized AI coding assistant rules for Claude Code, Cursor, and more",
+  "type": "module",
+  "bin": {
+    "ai-dev-setup": "bin/ai-dev-setup.js"
+  },
+  "files": ["bin/", "src/"],
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "lint": "echo 'no external linter — zero deps'",
+    "start": "node bin/ai-dev-setup.js"
+  },
+  "keywords": [
+    "ai",
+    "claude",
+    "cursor",
+    "rules",
+    "scaffold",
+    "cli",
+    "coding-assistant",
+    "superpowers",
+    "agency-agents"
+  ],
+  "author": "fahadsubzwari924",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

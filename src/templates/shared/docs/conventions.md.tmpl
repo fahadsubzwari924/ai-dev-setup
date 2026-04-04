@@ -1,0 +1,50 @@
+# Conventions — {{PROJECT_NAME}}
+
+{{#IF_TYPESCRIPT}}
+## TypeScript
+
+- Enable `strict`; avoid `any`; prefer `unknown` + narrowing
+- Explicit return types on exported functions and public class methods
+- Use discriminated unions for variant results instead of loose strings
+- Prefer `import type` for type-only imports
+- Co-locate tests as `*.test.ts` or `__tests__/` per repo standard
+{{/IF_TYPESCRIPT}}
+
+{{#IF_JAVASCRIPT}}
+## JavaScript
+
+- Prefer ES modules; avoid default exports for shared utilities
+- Add JSDoc types where the codebase has not migrated to TypeScript
+- Run the project's formatter and linter before PR
+{{/IF_JAVASCRIPT}}
+
+{{#IF_PYTHON}}
+## Python
+
+- Follow PEP 8; use a formatter (e.g. Ruff) consistently
+- Type hints on public functions; avoid mutable default arguments
+- Prefer `pathlib` over string paths
+- Tests alongside `tests/` layout already in repo
+{{/IF_PYTHON}}
+
+{{#IF_GO}}
+## Go
+
+- Handle `error` values explicitly; wrap with `%w` for traceability
+- Keep `context.Context` on I/O boundaries
+- Prefer small packages; avoid `util` catch-alls
+- Run `go fmt` and `go vet` before PR
+{{/IF_GO}}
+
+{{#IF_FLUTTER}}
+## Flutter / Dart
+
+- Keep widgets small; extract `StatelessWidget` for reusable UI
+- Avoid logic in `build`; use controllers/notifiers per project pattern
+- Prefer immutable models; document serialization boundaries
+{{/IF_FLUTTER}}
+
+## Cross-cutting
+
+- One logical change per commit when possible
+- Update public docs when behavior visible to users changes

@@ -1,0 +1,20 @@
+# /review — {{PROJECT_NAME}}
+
+## Goal
+
+Catch correctness, safety, and maintainability issues before merge.
+
+## Checklist
+
+- [ ] Matches stated acceptance checks
+- [ ] Errors handled at boundaries per `docs/ERROR-HANDLING.md`
+- [ ] Tests updated or gap documented (`{{TEST_CMD}}`)
+- [ ] No secrets / PII in logs
+- [ ] Public API or behavior change reflected in docs
+- [ ] `{{LINT_CMD}}` clean or waivers explained inline
+
+## Output format
+
+- ### Findings (severity: high/med/low)
+- ### Suggested patches (file-scoped)
+- ### Merge verdict: approve | changes requested

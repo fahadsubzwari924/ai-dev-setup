@@ -1,0 +1,12 @@
+---
+description: Specialist agent usage for {{PROJECT_NAME}} (Agency + .ai/agents.md)
+globs: ""
+alwaysApply: false
+---
+
+# Agents
+
+- Primary source: **Agency Agents** in `vendor/agency-agents/` — project rules under `.cursor/rules/agency-*.mdc`
+- Use `.ai/agents.md` tables to map task → specialist (planning, architecture, implementation, test, perf, review, security, docs)
+- Default: **one** primary agent per task; parallelize only independent workstreams
+- Superpowers (`vendor/superpowers/`) owns workflow phases; Agency owns role-specific execution

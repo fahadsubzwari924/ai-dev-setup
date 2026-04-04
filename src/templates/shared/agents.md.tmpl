@@ -1,0 +1,41 @@
+# Agent activation — {{PROJECT_NAME}}
+
+**Agency Agents** (vendored in `vendor/agency-agents/`) are the default specialist system. **Superpowers** (vendored in `vendor/superpowers/`) is the default workflow engine. Use both together: Superpowers for phase discipline, Agency for role fit.
+
+## Layout
+
+| Piece | Claude Code | Cursor |
+|-------|-------------|--------|
+| Agency | `.claude/agents/*.md` | `.cursor/rules/agency-*.mdc` |
+| Superpowers skills | `.claude/skills/` | `.cursor-plugin` → `vendor/superpowers` |
+
+## Engineering agents
+
+| Task focus | Agent role |
+|------------|------------|
+| Requirements → plan | Product/planning: clarify scope, acceptance, risks |
+| Architecture / structure | System design: boundaries, modules, data flow |
+| Implementation | Feature dev: code changes following `.ai/rules.md` |
+| Tests | QA test: coverage gaps, edge cases, fixtures |
+| Performance | Perf: hot paths, allocations, I/O, caching |
+| Tooling / CI | Platform: scripts, pipelines, developer ergonomics |
+
+## Quality agents
+
+| Task focus | Agent role |
+|------------|------------|
+| Review | Code review: correctness, safety, maintainability |
+| Security review | Threats: authz, input validation, secrets, supply chain |
+| Docs | Technical writing: clarity, examples, diagrams |
+
+## Claude Code
+
+- Invoke slash commands from `.claude/commands/` when they match the phase (`/kickoff`, `/review`, `/ship`)
+- Load Agency agent definitions from `.claude/agents/`; match filename/topic to task
+- Keep long guidance in `docs/`; keep messages short with pointers
+
+## Cursor
+
+- Load `.cursor/rules/workflow.mdc`, `review.mdc`, `agents.mdc` when the task matches
+- Load relevant `agency-*.mdc` when using a named Agency specialist
+- Keep `.cursorrules` as the index; do not duplicate `.ai/rules.md`

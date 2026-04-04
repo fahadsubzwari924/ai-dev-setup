@@ -1,0 +1,13 @@
+---
+description: Pre-merge review checklist for {{PROJECT_NAME}}
+globs: ""
+alwaysApply: false
+---
+
+# Review
+
+- Acceptance checks satisfied; no accidental scope creep
+- Lint/test/build scripts clean (`{{LINT_CMD}}`, `{{TEST_CMD}}`, `{{BUILD_CMD}}`)
+- Security: input validation, authz, secrets, injection risks per `docs/SECURITY.md`
+- Docs updated when public behavior or architecture changes
+- Merge risks + rollback noted for risky changes

@@ -1,0 +1,39 @@
+# API patterns — {{PROJECT_NAME}}
+
+## REST shape
+
+| Concern | Rule |
+|---------|------|
+| URLs | Plural nouns; stable versioning (`/v1/...`) |
+| Methods | `GET` safe/idempotent; `POST` create; `PUT`/`PATCH` update; `DELETE` remove |
+| Status | Use correct 2xx/4xx/5xx; avoid 200 with error payloads |
+
+## Request validation
+
+- Reject unknown fields when schema is strict
+- Normalize types at the boundary; domain receives validated models
+
+## Pagination
+
+| Style | When |
+|-------|------|
+| Cursor-based | Large, stable feeds |
+| Offset/limit | Admin tools with small datasets |
+
+Include `next_cursor` or `page`/`page_size` consistently.
+
+## Errors
+
+| Field | Purpose |
+|-------|---------|
+| `code` | Machine-stable identifier |
+| `message` | Human readable, safe for clients |
+| `details` | Optional structured context (no secrets) |
+
+## Idempotency
+
+- Use idempotency keys for `POST` that create billable or side-effectful resources
+
+## Versioning
+
+- Breaking changes: new major version path or explicit deprecation window documented

@@ -1,0 +1,42 @@
+# Development workflow — {{PROJECT_NAME}}
+
+## Lifecycle
+
+1. **Understand** — restate goal, constraints, acceptance checks (3–7 bullets)
+2. **Design** — data flow, boundaries, failure modes; link to `docs/ARCHITECTURE.md` updates if structure changes
+3. **Plan** — ordered tasks with file paths and verification per task
+4. **Implement** — smallest vertical slice first; keep diffs reviewable
+5. **Review** — run `{{LINT_CMD}}` and `{{TEST_CMD}}`; fix or document exceptions
+6. **Ship** — conventional commit; PR notes include risk + rollback
+
+## TDD (when tests exist)
+
+- **Red** — write a failing test that encodes the requirement
+- **Green** — minimal code to pass
+- **Refactor** — structure and names; keep tests green
+
+Skip TDD only when user explicitly opts out or project has no harness yet—then add the smallest harness first.
+
+## Planning standards
+
+| Rule | Target |
+|------|--------|
+| Task size | Completable in one focused session |
+| Task description | Verb + object + location (path or module) |
+| Verification | Command or observable outcome per task |
+
+## Review checklist (self)
+
+- [ ] Behavior matches acceptance checks
+- [ ] Errors surfaced with actionable messages
+- [ ] New logic covered by tests or documented gap
+- [ ] No new secrets or sensitive logs
+- [ ] Docs updated when public behavior or architecture changed
+
+## Commands (local)
+
+| Step | Command |
+|------|---------|
+| Lint | `{{LINT_CMD}}` |
+| Test | `{{TEST_CMD}}` |
+| Build | `{{BUILD_CMD}}` |
