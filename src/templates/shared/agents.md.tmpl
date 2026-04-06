@@ -30,12 +30,16 @@
 
 ## Claude Code
 
+**Superpowers + Agency are on by default** once `vendor/` is present—the assistant should use them without requiring the user to paste `vendor/` or `.claude/` paths each time.
+
 - Invoke slash commands from `.claude/commands/` when they match the phase (`/kickoff`, `/review`, `/ship`)
 - Load Agency agent definitions from `.claude/agents/`; match filename/topic to task
 - Keep long guidance in `docs/`; keep messages short with pointers
 
 ## Cursor
 
-- Load `.cursor/rules/workflow.mdc`, `review.mdc`, `agents.mdc` when the task matches
+**Superpowers + Agency are on by default** via workspace rules and the Superpowers plugin—no need to ask the user to cite `.cursor-plugin` or `vendor/` paths unless setup is broken.
+
+- Follow **`routing.mdc`** (always applied) plus `.cursor/rules/workflow.mdc`, `review.mdc`, `agents.mdc` when the task matches
 - Load relevant `agency-*.mdc` when using a named Agency specialist
 - Keep `.cursorrules` as the index; do not duplicate `.ai/rules.md`

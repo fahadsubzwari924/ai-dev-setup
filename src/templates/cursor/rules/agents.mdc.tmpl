@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Agents
 
+- Required: pick the Agency specialist per `routing.mdc` and `.ai/agents.md` (planning, architecture, implementation, test, perf, review, security, docs)
 - Primary source: **Agency Agents** in `vendor/agency-agents/` — project rules under `.cursor/rules/agency-*.mdc`
-- Use `.ai/agents.md` tables to map task → specialist (planning, architecture, implementation, test, perf, review, security, docs)
-- Default: **one** primary agent per task; parallelize only independent workstreams
-- Superpowers (`vendor/superpowers/`) owns workflow phases; Agency owns role-specific execution
+- **One** primary specialist per task unless workstreams are independent
+- Superpowers (`vendor/superpowers/`) drives workflow phases; Agency drives role execution — both apply by default

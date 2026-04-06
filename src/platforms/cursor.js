@@ -17,6 +17,7 @@ export class CursorPlatform extends Platform {
     const pairs = [
       ['cursor/cursorrules.tmpl', '.cursorrules'],
       ['cursor/rules/core-rules.mdc.tmpl', '.cursor/rules/core-rules.mdc'],
+      ['cursor/rules/routing.mdc.tmpl', '.cursor/rules/routing.mdc'],
       ['cursor/rules/workflow.mdc.tmpl', '.cursor/rules/workflow.mdc'],
       ['cursor/rules/review.mdc.tmpl', '.cursor/rules/review.mdc'],
       ['cursor/rules/agents.mdc.tmpl', '.cursor/rules/agents.mdc'],

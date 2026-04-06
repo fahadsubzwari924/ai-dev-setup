@@ -12,8 +12,8 @@
 
 | System | Location | Role |
 |--------|----------|------|
-| Superpowers (obra) | `vendor/superpowers/`, skills in `.claude/skills/` | Workflow engine: brainstorming → design → plans → TDD → review — use these skills for every non-trivial task |
-| Agency Agents | `vendor/agency-agents/`, agents in `.claude/agents/` | Specialist execution: pick the agent that matches the task from `.ai/agents.md` |
+| Superpowers (obra) | `vendor/superpowers/`, skills in `.claude/skills/` | **Default workflow for all work:** features, bugs, ideas/spikes, refactors, docs, and reviews—invoke the matching Superpowers skills (brainstorming, planning, TDD, debugging, review, etc.) unless the user opts out |
+| Agency Agents | `vendor/agency-agents/`, agents in `.claude/agents/` | **Default specialists:** pick the agent that matches the task from `.ai/agents.md` |
 
 Do not treat Superpowers or Agency as optional add-ons. If `vendor/` is missing, run `npx ai-dev-setup init` without `--skip-vendor`.
 
