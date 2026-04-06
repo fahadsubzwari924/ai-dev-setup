@@ -10,7 +10,6 @@ npx ai-dev-setup init
 
 ---
 
-## Recommended team workflow (no `vendor/` in git)
 ## Activation status
 
 | Mode | Status |
