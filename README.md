@@ -11,6 +11,17 @@ npx ai-dev-setup init
 ---
 
 ## Recommended team workflow (no `vendor/` in git)
+## Activation status
+
+| Mode | Status |
+|------|--------|
+| `init` / `init --yes` | Activated immediately (scaffold + vendor materialized) |
+| `init --yes --skip-vendor` | Not activated yet (scaffold only) |
+| `init --vendor-only` | Activates an existing scaffold by materializing `vendor/` |
+
+`--skip-vendor` does **not** install Superpowers or Agency. To use the full Claude Code and Cursor workflow, run `init --vendor-only` on each machine.
+
+## Recommended team workflow (no `vendor/` in git)
 
 This is the **default adoption path** we recommend: small git history, explicit security posture, one non-interactive command for teammates.
 
