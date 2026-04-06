@@ -2,6 +2,8 @@
 
 This is the **default adoption path** we recommend: small git history, explicit security posture, one non-interactive command for teammates.
 
+**Activation model:** `--skip-vendor` creates scaffold files only. It does **not** activate Superpowers or Agency until each machine runs `init --vendor-only`.
+
 1. **Maintainer** generates the **scaffold** without vendored trees (or removes `vendor/` after a local full run), then commits everything **except** `vendor/`:
 
    ```bash

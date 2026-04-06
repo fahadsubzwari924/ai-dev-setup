@@ -13,6 +13,16 @@
 | Scaffold only; do **not** put `vendor/` in git (team default) | `npx ai-dev-setup init --yes --skip-vendor` → then see [Team adoption](docs/guide/team-adoption.md) |
 | Vendors only after clone (no template overwrite) | `npx ai-dev-setup init --vendor-only --platforms=claude,cursor` |
 
+## Activation status
+
+| Mode | Status |
+|------|--------|
+| `init` / `init --yes` | Activated immediately (scaffold + vendor materialized) |
+| `init --yes --skip-vendor` | Not activated yet (scaffold only) |
+| `init --vendor-only` | Activates an existing scaffold by materializing `vendor/` |
+
+`--skip-vendor` does **not** install Superpowers or Agency. To use the full Claude Code and Cursor workflow, run `init --vendor-only` on each machine.
+
 ## Quick start
 
 1. `cd` to your project root.

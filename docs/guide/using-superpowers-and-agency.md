@@ -2,6 +2,8 @@
 
 After **`init`** has finished (full run **or** **`init --vendor-only`** so `vendor/` exists), you can start using the setup in plain language. **Superpowers + Agency are the default** for both tools once vendored content exists—**Cursor** also ships **`routing.mdc`** so that default applies without you naming plugin paths each chat. Exact UI (slash menus, rules picker) depends on your **Claude Code** or **Cursor** version; the ideas below always apply.
 
+If you used **`init --skip-vendor`**, this guide does not apply yet: run **`init --vendor-only`** first to materialize `vendor/` and activate Superpowers + Agency locally.
+
 ## Example — Claude Code: `/kickoff` on a small feature
 
 1. Open the **project root** in Claude Code.
