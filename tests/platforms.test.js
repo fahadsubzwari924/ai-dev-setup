@@ -29,8 +29,9 @@ describe('platforms', () => {
       'CLAUDE.md',
     ]);
     const claudeMd = files.find((f) => f.path === 'CLAUDE.md');
-    assert.ok(claudeMd?.content.includes('Superpowers'));
-    assert.ok(claudeMd?.content.includes('Agency'));
+    assert.ok(claudeMd, 'expected CLAUDE.md');
+    assert.ok(claudeMd.content.includes('Superpowers'), 'CLAUDE.md should mention Superpowers');
+    assert.ok(claudeMd.content.includes('Agency'), 'CLAUDE.md should mention Agency');
   });
 
   it('cursor platform returns expected paths and MDC frontmatter', async () => {
@@ -42,13 +43,22 @@ describe('platforms', () => {
       '.cursor/rules/agents.mdc',
       '.cursor/rules/core-rules.mdc',
       '.cursor/rules/review.mdc',
+      '.cursor/rules/routing.mdc',
       '.cursor/rules/workflow.mdc',
       '.cursorrules',
     ]);
     const core = files.find((f) => f.path === '.cursor/rules/core-rules.mdc');
-    assert.ok(core?.content.startsWith('---'));
+    assert.ok(core, 'expected .cursor/rules/core-rules.mdc');
+    assert.ok(core.content.startsWith('---'));
     assert.match(core.content, /alwaysApply:\s*true/);
     const workflow = files.find((f) => f.path === '.cursor/rules/workflow.mdc');
+    assert.ok(workflow, 'expected .cursor/rules/workflow.mdc');
     assert.match(workflow.content, /alwaysApply:\s*false/);
+    const routing = files.find((f) => f.path === '.cursor/rules/routing.mdc');
+    assert.ok(routing, 'expected .cursor/rules/routing.mdc');
+    assert.ok(routing.content.startsWith('---'));
+    assert.match(routing.content, /alwaysApply:\s*true/);
+    assert.ok(routing.content.includes('Superpowers'), 'routing rule should mention Superpowers');
+    assert.ok(routing.content.includes('Agency'), 'routing rule should mention Agency');
   });
 });

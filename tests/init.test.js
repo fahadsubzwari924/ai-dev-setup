@@ -63,6 +63,7 @@ describe('init command', () => {
       '.claude/commands/ship.md',
       '.cursorrules',
       '.cursor/rules/core-rules.mdc',
+      '.cursor/rules/routing.mdc',
       '.cursor/rules/workflow.mdc',
       '.cursor/rules/review.mdc',
       '.cursor/rules/agents.mdc',

@@ -120,7 +120,7 @@ npx ai-dev-setup init --yes
 
 ## First-time usage: Superpowers + Agency
 
-After **`init`** has finished (full run **or** **`init --vendor-only`** so `vendor/` exists), you can start using the setup in plain language. Exact UI (slash menus, rules picker) depends on your **Claude Code** or **Cursor** version; the ideas below always apply.
+After **`init`** has finished (full run **or** **`init --vendor-only`** so `vendor/` exists), you can start using the setup in plain language. **Superpowers + Agency are the default** for both tools once vendored content exists—**Cursor** also ships **`routing.mdc`** so that default applies without you naming plugin paths each chat. Exact UI (slash menus, rules picker) depends on your **Claude Code** or **Cursor** version; the ideas below always apply.
 
 ### Example 1 — Claude Code: `/kickoff` on a small feature
 
@@ -167,7 +167,8 @@ After **`init`** has finished (full run **or** **`init --vendor-only`** so `vend
 2. Skim **`.ai/rules.md`** and adjust for your team.
 3. **Commit** scaffold files (including **`.gitignore`**). If you use **templates-only** flow, **do not commit** `vendor/`; **`.gitignore`** should already list **`/vendor/`** from `init`. Ensure teammates run **`--vendor-only`** (or your `vendor:ai` script) after clone.
 4. In **Cursor**, enable the workspace **Superpowers** plugin if your Cursor version requires it.
-5. **Updates:** re-run `init --yes --force` or `init --vendor-only --force` with pinned refs, or `git pull` inside `vendor/*` manually.
+5. **`.cursorignore`** lists **`vendor/superpowers/`** and **`vendor/agency-agents/`** so Cursor indexes less of the vendored trees (fewer noisy imports and search hits). If that hides files your workflow or the Superpowers plugin needs in the UI, remove or narrow those lines.
+6. **Updates:** re-run `init --yes --force` or `init --vendor-only --force` with pinned refs, or `git pull` inside `vendor/*` manually.
 
 ---
 
@@ -195,7 +196,7 @@ docs/
 
 **Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json`, `.claude/commands/*`.
 
-**Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `workflow.mdc`, `review.mdc`, `agents.mdc`.
+**Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `routing.mdc` (defaults to Superpowers + Agency), `workflow.mdc`, `review.mdc`, `agents.mdc`.
 
 ### Vendor step (`--vendor-only` or full `init` without `--skip-vendor`)
 
