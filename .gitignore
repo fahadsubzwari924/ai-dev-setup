@@ -33,9 +33,15 @@ vendor/
 .cursorrules
 .claudeignore
 .cursorignore
-# Root docs/ is created by init (ARCHITECTURE.md, etc.). Remove this line if you
-# add real package documentation under docs/.
-/docs/
+# Root docs/ is created by init (ARCHITECTURE.md, etc.). Ignore consumer output
+# but track maintainer docs under docs/guide/, docs/reference/, docs/superpowers/.
+/docs/*
+!/docs/guide/
+!/docs/guide/**
+!/docs/reference/
+!/docs/reference/**
+!/docs/superpowers/
+!/docs/superpowers/**
 
 # OS
 .DS_Store
