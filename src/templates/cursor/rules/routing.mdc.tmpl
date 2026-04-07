@@ -11,3 +11,14 @@ alwaysApply: true
 - Idea or brainstorm → brainstorming + product/planning before implementation.
 - Add a feature → plan (e.g. writing-plans) then implement and verify (TDD when a harness exists).
 - Review or ship → review/verification skills plus reviewer (or security) role as fits.
+
+## DISPATCH RULE (non-negotiable)
+
+**Before dispatching any implementation Task/subagent:** Bind an Agency specialist by prepending `@agency-<role>.mdc` reference or inline its rules. Do **not** use a generic “implementer” persona. Examples:
+- API/backend → `@agency-backend-architect.mdc`
+- UI/frontend → `@agency-frontend-developer.mdc`
+- Tests → `@agency-qa-tester.mdc`
+- Infra/CI → `@agency-devops-engineer.mdc`
+- Plan is silent? Map roles using `.ai/agents.md` before dispatch.
+
+“Sub-agent driven” = Superpowers transport (isolation, reviews, todos). Persona = Agency specialist. **Both apply.**

@@ -8,10 +8,24 @@
 | Methods | `GET` safe/idempotent; `POST` create; `PUT`/`PATCH` update; `DELETE` remove |
 | Status | Use correct 2xx/4xx/5xx; avoid 200 with error payloads |
 
-## Request validation
+## Request validation (required — non-negotiable)
 
-- Reject unknown fields when schema is strict
-- Normalize types at the boundary; domain receives validated models
+- Validate **every** incoming field (body, params, query string) at the route/controller boundary with a schema library **before** the service is called
+- Reject unknown/extra fields when schema is strict — `whitelist` / `stripUnknown` where available
+- Normalize types at the boundary; services receive typed, validated domain models — not raw strings/any
+- Return `400` with a structured error body listing which fields failed and why — never return a generic "Invalid request"
+- Never repeat validation inside the service; trust that the controller enforced the boundary contract
+
+## Layer responsibilities
+
+| Layer | What it handles | What it must NOT do |
+|-------|----------------|---------------------|
+| Router | Mount routes, attach middleware | Logic, DB calls |
+| Controller | Parse → validate → call service → respond | Business rules, DB queries |
+| Service | Business logic, domain decisions, orchestration | `req`/`res`, raw DB queries |
+| Repository | Queries and mutations only | Business logic |
+
+**Rule:** business logic that crosses this boundary is a defect, not a shortcut.
 
 ## Pagination
 

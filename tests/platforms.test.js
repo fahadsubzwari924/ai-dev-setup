@@ -22,10 +22,12 @@ describe('platforms', () => {
     const files = await p.getFiles(sampleConfig);
     const paths = files.map((f) => f.path).sort();
     assert.deepEqual(paths, [
+      '.claude/commands/implement.md',
       '.claude/commands/kickoff.md',
       '.claude/commands/review.md',
       '.claude/commands/ship.md',
       '.claude/settings.json',
+      '.claudeignore',
       'CLAUDE.md',
     ]);
     const claudeMd = files.find((f) => f.path === 'CLAUDE.md');
@@ -45,6 +47,7 @@ describe('platforms', () => {
       '.cursor/rules/review.mdc',
       '.cursor/rules/routing.mdc',
       '.cursor/rules/workflow.mdc',
+      '.cursorignore',
       '.cursorrules',
     ]);
     const core = files.find((f) => f.path === '.cursor/rules/core-rules.mdc');

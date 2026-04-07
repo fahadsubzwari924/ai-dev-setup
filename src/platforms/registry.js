@@ -28,7 +28,7 @@ function tpl(rel) {
 }
 
 /**
- * Shared artifacts for every run (.ai/, docs/, ignore files).
+ * Shared artifacts for every run (.ai/, docs/). Tool-specific ignores live under each platform.
  * @param {Record<string, unknown>} config
  */
 export async function getSharedFiles(config) {
@@ -43,8 +43,6 @@ export async function getSharedFiles(config) {
     { template: 'shared/docs/api-patterns.md.tmpl', out: 'docs/API-PATTERNS.md' },
     { template: 'shared/docs/error-handling.md.tmpl', out: 'docs/ERROR-HANDLING.md' },
     { template: 'shared/docs/security.md.tmpl', out: 'docs/SECURITY.md' },
-    { template: 'ignore/claudeignore.tmpl', out: '.claudeignore' },
-    { template: 'ignore/cursorignore.tmpl', out: '.cursorignore' },
   ];
 
   const out = [];

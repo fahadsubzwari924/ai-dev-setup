@@ -6,7 +6,9 @@ alwaysApply: false
 
 # Agents
 
-- Required: pick the Agency specialist per `routing.mdc` and `.ai/agents.md` (planning, architecture, implementation, test, perf, review, security, docs)
+- **DISPATCH RULE:** Before every implementation Task/subagent, prepend the matching `agency-*.mdc` per plan or `.ai/agents.md` map. Do not use generic “implementer” personas.
+- Pick the Agency specialist per `routing.mdc` and `.ai/agents.md` (architecture, API, UI, tests, perf, review, security, docs, product)
 - Primary source: **Agency Agents** in `vendor/agency-agents/` — project rules under `.cursor/rules/agency-*.mdc`
 - **One** primary specialist per task unless workstreams are independent
-- Superpowers (`vendor/superpowers/`) drives workflow phases; Agency drives role execution — both apply by default
+- Superpowers (`vendor/superpowers/`) drives workflow phases (subagent isolation, reviews, todos); Agency drives the implementation persona — both apply by default
+- “Sub-agent driven approach” = transport mode (Superpowers isolation), NOT persona. Persona is ALWAYS Agency.

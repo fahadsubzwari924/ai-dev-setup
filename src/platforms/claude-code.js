@@ -18,8 +18,10 @@ export class ClaudeCodePlatform extends Platform {
       ['claude-code/claude.md.tmpl', 'CLAUDE.md'],
       ['claude-code/settings.json.tmpl', '.claude/settings.json'],
       ['claude-code/commands/kickoff.md.tmpl', '.claude/commands/kickoff.md'],
+      ['claude-code/commands/implement.md.tmpl', '.claude/commands/implement.md'],
       ['claude-code/commands/review.md.tmpl', '.claude/commands/review.md'],
       ['claude-code/commands/ship.md.tmpl', '.claude/commands/ship.md'],
+      ['ignore/claudeignore.tmpl', '.claudeignore'],
     ];
     const out = [];
     for (const [rel, dest] of pairs) {

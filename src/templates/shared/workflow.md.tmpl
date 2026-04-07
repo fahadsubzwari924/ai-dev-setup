@@ -8,10 +8,21 @@ For **any** work type—feature, bugfix, idea/spike, refactor, documentation, or
 
 1. **Understand** — restate goal, constraints, acceptance checks (3–7 bullets)
 2. **Design** — data flow, boundaries, failure modes; link to `docs/ARCHITECTURE.md` updates if structure changes
-3. **Plan** — ordered tasks with file paths and verification per task
-4. **Implement** — smallest vertical slice first; keep diffs reviewable
+3. **Plan** — ordered tasks with file paths, verification per task, and **Agency specialist per task** (use `/kickoff` or `.ai/agents.md` mapping)
+4. **Implement** — smallest vertical slice first; keep diffs reviewable. Always bind implementation workers to an **Agency specialist** per plan or `.ai/agents.md`—use `/implement` or Superpowers subagent-driven-development with Agency role prepended to each task
 5. **Review** — run `{{LINT_CMD}}` and `{{TEST_CMD}}`; fix or document exceptions
 6. **Ship** — conventional commit; PR notes include risk + rollback
+
+## Plan execution modes
+
+**Both modes require Agency specialists per task.** The difference is how tasks are dispatched:
+
+| Mode | How tasks run | Agency binding |
+|------|---------------|-----------------|
+| Sub-agent driven | Each task isolated in fresh context with Superpowers orchestration | REQUIRED: prepend Agency role to each subagent prompt; use `/implement` command or manually load `.ai/agents/<role>.md` |
+| Session-wise | Tasks sequential in current session | REQUIRED: use `/implement` or inline `.ai/agents/<role>.md` before each task |
+
+**Key:** "Sub-agent driven" describes the **transport/isolation**, not the **persona**. Persona always comes from Agency.
 
 ## TDD (when tests exist)
 

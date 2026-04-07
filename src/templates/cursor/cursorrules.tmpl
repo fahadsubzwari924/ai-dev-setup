@@ -13,10 +13,12 @@ If `vendor/` or `.cursor-plugin/` is missing, run `npx ai-dev-setup init` withou
 
 | File | Purpose |
 |------|---------|
-| `.ai/rules.md` | Coding standards, anti-patterns, doc index |
+| `.ai/rules.md` | Engineering principles (SOLID, DRY, KISS, YAGNI), anti-patterns, layer rules |
 | `.ai/workflow.md` | Lifecycle, TDD, review checklist |
-| `.ai/agents.md` | Specialist activation |
-| `docs/*` | Deep references—load only when relevant |
+| `.ai/agents.md` | Specialist activation + quality expectations per role |
+| `docs/CONVENTIONS.md` | Stack-specific patterns: layer separation, constants, input validation |
+| `docs/API-PATTERNS.md` | HTTP layer responsibilities + validation contract — load on every API task |
+| `docs/*` | Other deep references—load only when relevant |
 
 ## Project facts
 
@@ -28,6 +30,7 @@ If `vendor/` or `.cursor-plugin/` is missing, run `npx ai-dev-setup init` withou
 - Answer briefly; cite paths instead of pasting large files
 - Prefer existing patterns in-repo over generic tutorials
 - After architectural change, update `docs/ARCHITECTURE.md` in the same change when behavior crosses modules
+- **Superpowers subagents / Task workers:** process comes from Superpowers; **implementation** workers still load the **Agency** role from `agency-*.mdc` / `.ai/agents.md` (plan-named role or mapped specialist)—not a generic implementer when Agency applies
 
 ## Rules layout
 
