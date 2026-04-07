@@ -1,0 +1,26 @@
+# /implement — {{PROJECT_NAME}}
+
+## Goal
+
+Execute an implementation plan using Agency specialists, avoiding generic "implementer" personas.
+
+## Before running this command
+
+1. You have a **plan** from `/kickoff` (or another source) with **tasks**, **paths**, and **Agency roles** assigned per task
+2. Each task names or implies an Agency specialist (e.g. `backend-architect` for API work, `frontend-developer` for UI)
+
+## Execution rules
+
+1. **For each task**: Load the matching Agency agent file from `.claude/agents/<role>.md`
+   - Inline the agent's role statement, constraints, and anti-patterns into the task prompt
+   - Or: attach the file and reference it by name
+2. **If using subagent-driven mode**: Each subagent worker MUST start with "You are operating as [Agency role]. Load `.claude/agents/<role>.md`…"
+3. **If the plan did not name a role**: Assign one per `.ai/agents.md` tables before starting (API → backend-architect, UI → frontend-developer, etc.)
+4. **Superpowers controls the workflow** (task delegation, review loops, todos) — **Agency controls the implementation persona** (who you act as, constraints, judgment calls)
+5. Run `{{TEST_CMD}}` / `{{LINT_CMD}}` after each task; let `/review` handle pre-merge gates
+
+## Output format
+
+- Smallest vertical slice first (build, test, review cycle)
+- Keep diffs reviewable — one concern per task
+- Link errors to `.ai/rules.md` or `docs/ERROR-HANDLING.md` when exceptions occur

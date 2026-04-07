@@ -1,4 +1,4 @@
-import { describe, it, before, after } from 'node:test';
+import { describe, it, before, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -11,8 +11,11 @@ describe('init command', () => {
   /** @type {string} */
   let prevCwd;
 
-  before(async () => {
+  before(() => {
     prevCwd = process.cwd();
+  });
+
+  beforeEach(async () => {
     tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'ai-dev-setup-init-'));
     await fs.writeFile(
       path.join(tmp, 'package.json'),
@@ -27,7 +30,7 @@ describe('init command', () => {
     process.chdir(tmp);
   });
 
-  after(async () => {
+  afterEach(async () => {
     process.chdir(prevCwd);
     await fs.rm(tmp, { recursive: true, force: true });
   });
@@ -91,5 +94,63 @@ describe('init command', () => {
     const gi = await fs.readFile(path.join(tmp, '.gitignore'), 'utf8');
     assert.ok(gi.includes('/vendor/'));
     assert.ok(gi.includes('# --- ai-dev-setup: vendor (managed) ---'));
+  });
+
+  it('Claude-only does not emit Cursor files including .cursorignore', async () => {
+    await initCommand({
+      yes: true,
+      force: true,
+      skipVendor: true,
+      vendorOnly: false,
+      stack: null,
+      platforms: 'claude',
+      superpowersRef: null,
+      agencyRef: null,
+      help: false,
+      version: false,
+    });
+
+    await fs.access(path.join(tmp, '.claudeignore'));
+    await fs.access(path.join(tmp, 'CLAUDE.md'));
+    await assert.rejects(() => fs.access(path.join(tmp, '.cursorignore')), { code: 'ENOENT' });
+    await assert.rejects(() => fs.access(path.join(tmp, '.cursorrules')), { code: 'ENOENT' });
+  });
+
+  it('Cursor-only does not emit Claude files including .claudeignore', async () => {
+    await initCommand({
+      yes: true,
+      force: true,
+      skipVendor: true,
+      vendorOnly: false,
+      stack: null,
+      platforms: 'cursor',
+      superpowersRef: null,
+      agencyRef: null,
+      help: false,
+      version: false,
+    });
+
+    await fs.access(path.join(tmp, '.cursorignore'));
+    await fs.access(path.join(tmp, '.cursorrules'));
+    await assert.rejects(() => fs.access(path.join(tmp, '.claudeignore')), { code: 'ENOENT' });
+    await assert.rejects(() => fs.access(path.join(tmp, 'CLAUDE.md')), { code: 'ENOENT' });
+  });
+
+  it('dedupes duplicate platforms in --platforms', async () => {
+    await initCommand({
+      yes: true,
+      force: true,
+      skipVendor: true,
+      vendorOnly: false,
+      stack: null,
+      platforms: 'claude,claude,cursor',
+      superpowersRef: null,
+      agencyRef: null,
+      help: false,
+      version: false,
+    });
+
+    await fs.access(path.join(tmp, '.claudeignore'));
+    await fs.access(path.join(tmp, '.cursorignore'));
   });
 });

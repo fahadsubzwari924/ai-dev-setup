@@ -22,7 +22,7 @@ This is the **default adoption path** we recommend: small git history, explicit 
 
    Every **`init`** (including **`--skip-vendor`** and **`--vendor-only`**) **merges** a small managed section into **`.gitignore`** so **`/vendor/`** is ignored by default—reducing the chance of accidentally committing large vendored trees. If you use an older CLI or deleted that block, add **`/vendor/`** yourself.
 
-2. **Commit** the scaffold: `.ai/`, `docs/`, `CLAUDE.md`, `.claude/`, `.cursorrules`, `.cursor/rules/*.mdc`, `.cursor-plugin/` (if present from a prior run), `.claudeignore`, `.cursorignore`.
+2. **Commit** the scaffold: `.ai/`, `docs/`, and whatever **`init`** generated for the platforms you chose (e.g. Claude Code: `CLAUDE.md`, `.claude/`, `.claudeignore`; Cursor: `.cursorrules`, `.cursor/rules/*.mdc`, `.cursorignore`; `.cursor-plugin/` when present from the vendor step).
 
 3. **Teammates** (after `git clone` and `npm install`): run **vendor only** — this does **not** rewrite templates and does **not** use interactive prompts:
 
@@ -167,7 +167,7 @@ After **`init`** has finished (full run **or** **`init --vendor-only`** so `vend
 2. Skim **`.ai/rules.md`** and adjust for your team.
 3. **Commit** scaffold files (including **`.gitignore`**). If you use **templates-only** flow, **do not commit** `vendor/`; **`.gitignore`** should already list **`/vendor/`** from `init`. Ensure teammates run **`--vendor-only`** (or your `vendor:ai` script) after clone.
 4. In **Cursor**, enable the workspace **Superpowers** plugin if your Cursor version requires it.
-5. **`.cursorignore`** lists **`vendor/superpowers/`** and **`vendor/agency-agents/`** so Cursor indexes less of the vendored trees (fewer noisy imports and search hits). If that hides files your workflow or the Superpowers plugin needs in the UI, remove or narrow those lines.
+5. When **Cursor** is among your selected platforms, **`.cursorignore`** lists **`vendor/superpowers/`** and **`vendor/agency-agents/`** so Cursor indexes less of the vendored trees (fewer noisy imports and search hits). If that hides files your workflow or the Superpowers plugin needs in the UI, remove or narrow those lines.
 6. **Updates:** re-run `init --yes --force` or `init --vendor-only --force` with pinned refs, or `git pull` inside `vendor/*` manually.
 
 ---
@@ -188,15 +188,13 @@ docs/
   API-PATTERNS.md
   ERROR-HANDLING.md
   SECURITY.md
-.claudeignore
-.cursorignore
 ```
 
 **`.gitignore`:** each **`init`** merges in a managed **`/vendor/`** block (safe with existing rules); not listed above as a static template file.
 
-**Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json`, `.claude/commands/*`.
+**Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json`, `.claude/commands/*`, **`.claudeignore`**.
 
-**Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `routing.mdc` (defaults to Superpowers + Agency), `workflow.mdc`, `review.mdc`, `agents.mdc`.
+**Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `routing.mdc` (defaults to Superpowers + Agency), `workflow.mdc`, `review.mdc`, `agents.mdc`, **`.cursorignore`**.
 
 ### Vendor step (`--vendor-only` or full `init` without `--skip-vendor`)
 
@@ -278,6 +276,7 @@ Detection uses `package.json`, `tsconfig.json`, `next.config.*`, `nest-cli.json`
 - **Superpowers** — workflow engine under `vendor/superpowers`, `.claude/skills/`, `.cursor-plugin`.
 - **Agency** — specialists: `agency-*.mdc`, `.claude/agents/`.
 - Generated docs treat both as **required** for this scaffold.
+- **Subagents / Task execution:** Superpowers skills like `subagent-driven-development` control *how* work is delegated (isolated workers, reviews). **Agency** still defines *who* implements—each implementation worker should load the specialist file named in the plan or mapped in `.ai/agents.md` (see that file’s section on implementation plans).
 
 ---
 

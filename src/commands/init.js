@@ -41,7 +41,7 @@ function parsePlatformsFlag(flag) {
       throw new Error(`Unknown platform: ${k}. Valid: ${[...PLATFORM_KEYS].join(', ')}`);
     }
   }
-  return keys;
+  return [...new Set(keys)];
 }
 
 /** @param {string|null} language */
@@ -306,11 +306,12 @@ async function runGenerate(cwd, config, platformKeys, flags) {
  * @param {string[]} platformKeys
  */
 async function collectFiles(config, platformKeys) {
+  const keys = [...new Set(platformKeys)];
   /** @type {Array<{ path: string, content: string }>} */
   const all = [];
   all.push(...(await getSharedFiles(config)));
 
-  for (const key of platformKeys) {
+  for (const key of keys) {
     const p = getPlatform(key);
     if (!p) {
       throw new Error(`Platform not registered: ${key}`);

@@ -21,6 +21,7 @@ export class CursorPlatform extends Platform {
       ['cursor/rules/workflow.mdc.tmpl', '.cursor/rules/workflow.mdc'],
       ['cursor/rules/review.mdc.tmpl', '.cursor/rules/review.mdc'],
       ['cursor/rules/agents.mdc.tmpl', '.cursor/rules/agents.mdc'],
+      ['ignore/cursorignore.tmpl', '.cursorignore'],
     ];
     const out = [];
     for (const [rel, dest] of pairs) {

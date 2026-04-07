@@ -17,15 +17,30 @@
 
 Do not treat Superpowers or Agency as optional add-ons. If `vendor/` is missing, run `npx ai-dev-setup init` without `--skip-vendor`.
 
+## Dispatch rules (non-negotiable)
+
+**NEVER dispatch an implementation Task/subagent without binding an Agency specialist.**
+
+1. **Every implementation worker** (subagent, Task, or inline) MUST load the Agency file from `.claude/agents/<role>.md` — start the prompt with the agent's identity and constraints, or attach the file
+2. **"Sub-agent driven approach"** = execution transport (Superpowers task isolation), NOT persona. The **persona is ALWAYS from Agency**, per plan or `.ai/agents.md`
+3. **Plan names an Agency role?** Load `.claude/agents/<role>.md` before execution
+4. **Plan is silent on roles?** Map tasks using `.ai/agents.md` tables: API/server → `backend-architect`, UI → `frontend-developer`, tests → `qa-tester`, infra → `devops-engineer`
+5. **Superpowers reviewer subagents** (spec-check, code-quality) keep their workflow role — they are gates, not implementers; do not override with Agency files
+
+## Earlier reference (background)
+
+Skills like **subagent-driven-development** mean *isolated workers + review loops* (orchestration). They do **not** define *who* implements. **Agency** supplies specialist definitions under `.claude/agents/*.md`.
+
 ## Read first (onboarding)
 
 | Order | File |
 |-------|------|
-| 1 | `.ai/rules.md` |
+| 1 | `.ai/rules.md` — engineering principles, anti-patterns, layer rules |
 | 2 | `.ai/workflow.md` |
-| 3 | `docs/ARCHITECTURE.md` (fill if empty) |
+| 3 | `docs/CONVENTIONS.md` — stack-specific patterns (layer separation, constants, validation) |
+| 4 | `docs/ARCHITECTURE.md` (fill if empty) |
 
-Load other `docs/*` only when the task touches that area.
+Load `docs/API-PATTERNS.md` on every task that touches HTTP routes or request handling.
 
 ## Operating rules
 
@@ -38,7 +53,8 @@ Load other `docs/*` only when the task touches that area.
 
 | Command | Use |
 |---------|-----|
-| `/kickoff` | New feature: scope, risks, plan |
+| `/kickoff` | New feature: scope, risks, plan with Agency role per task |
+| `/implement` | Execute a plan: wires Agency specialists + quality checks |
 | `/review` | Pre-merge review checklist |
 | `/ship` | Release/merge readiness |
 
