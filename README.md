@@ -1,12 +1,68 @@
 # ai-dev-setup
 
-**One command** scaffolds a **token-aware** AI assistant setup for **Claude Code** and **Cursor**: shared rules (`.ai/`, `docs/`), tool-specific entrypoints, plus **vendored [Superpowers](https://github.com/obra/superpowers)** (workflow engine) and **[Agency Agents](https://github.com/msitarzewski/agency-agents)** (specialists) in your project.
+One command wires your project for structured AI-assisted development: project rules, a workflow engine ([Superpowers](https://github.com/obra/superpowers)), and specialist roles ([Agency Agents](https://github.com/msitarzewski/agency-agents)) — ready in Claude Code or Cursor.
 
 ```bash
 npx ai-dev-setup init
 ```
 
-**npm package dependencies:** none. **Your machine:** Node.js **18+**, and (when running the vendor step) **`git`** + **`bash`** on PATH.
+**npm package dependencies:** none. **Your machine:** Node.js **18+**, and (for the vendor step) **`git`** + **`bash`** on PATH.
+
+---
+
+## Why
+
+Without a shared setup, every AI session starts from scratch: re-explain the stack, paste test commands, describe the architecture. Your teammate's session drifts in a different direction.
+
+`ai-dev-setup` solves this once, per project:
+
+- **Structured workflow** — Superpowers gives the AI a phase-gated work engine (`/kickoff` → Understand → Design → Plan → Implement → Review → Ship). It stops the AI from jumping straight to code.
+- **Right specialist for the task** — Agency Agents binds a named role (`backend-architect`, `qa-tester`, `security-engineer`) to each task. The AI prioritizes that role's concerns, not a generic "helpful assistant" default.
+- **Project memory** — Generated files (`.ai/`, `docs/`) hold your stack, conventions, and architecture. Every session — yours, your teammate's, a subagent's — reads the same source of truth.
+- **One command, repeatable** — `npx ai-dev-setup init` scaffolds everything. Teammates restore vendored engines with `--vendor-only` after clone.
+
+---
+
+## Superpowers + Agency
+
+**[Superpowers](https://github.com/obra/superpowers)** is a workflow engine. It provides slash commands and skills that break work into structured phases. When you run `/kickoff` on a feature, you get scoped goals, a risk list, and an ordered task plan tied to your repo's actual `test`/`lint`/`build` commands — not a generic outline.
+
+**[Agency Agents](https://github.com/msitarzewski/agency-agents)** are specialist definitions. Each file (`backend-architect`, `qa-tester`, `security-engineer`, etc.) tells the AI which concerns take priority for that role. When bound to a task, the AI thinks as that specialist: a backend architect considers layer separation and DB contracts; a QA tester looks for coverage gaps and edge cases.
+
+**They work together:** Superpowers drives the phases ("how" work flows). Agency locks the specialist role per task ("who" does it). `/implement` wires both: Superpowers orchestrates execution, Agency prepends the specialist context to each implementation step.
+
+After `init`, both are vendored under `vendor/` and wired automatically — `CLAUDE.md` loads them in Claude Code; `routing.mdc` activates them on every Cursor session. No per-session configuration needed.
+
+---
+
+## Quick start
+
+**1.** `cd` to your project root and run:
+
+```bash
+npx ai-dev-setup init
+```
+
+Or non-interactive (no prompts, both platforms, vendor included):
+
+```bash
+npx ai-dev-setup init --yes
+```
+
+The CLI detects your stack, writes templates, then clones Superpowers + Agency into `vendor/` (requires `git` + `bash`; takes 1–2 min on first run).
+
+**2.** Commit the scaffold — see [Recommended team workflow](#recommended-team-workflow-no-vendor-in-git) for the `.gitignore` story and how teammates restore `vendor/` after clone.
+
+**3.** Open in your IDE:
+
+**Claude Code** — `CLAUDE.md` auto-loads with your stack identity, Superpowers skills, and Agency agents wired in. Start with:
+- `/kickoff` — scope a feature: goals, risks, and an ordered task plan with an Agency specialist assigned per task
+- `/implement` — execute the plan with Agency specialists bound to each implementation step
+- `/review` / `/ship` — pre-merge checklist and release readiness
+
+**Cursor** — `routing.mdc` (always-on rule) routes every session automatically. Ask about a feature, bug, or refactor in plain language — the right Superpowers skill and Agency role activate without extra setup. Enable the workspace Superpowers plugin in Cursor settings if your version requires it.
+
+**4.** Fill in `docs/ARCHITECTURE.md` and skim `.ai/rules.md` to adjust conventions for your project.
 
 ---
 
@@ -55,123 +111,6 @@ This is the **default adoption path** we recommend: small git history, explicit 
 
 ---
 
-## Security and trust
-
-- **This package** does not register a `postinstall` script. Running the vendor step is **always explicit** (`init` or your own script).
-- **Git refs** passed to `git clone -b` are validated (alphanumeric branch/tag style only) to reduce misuse.
-- **Advanced (optional):** if your team adds a **consumer** `postinstall` that runs `vendor:ai`, document it, skip when `CI=true`, and expect some environments to use `npm install --ignore-scripts`.
-
----
-
-## Who this is for
-
-- Teams who want **one repeatable setup** per project instead of hand-writing `CLAUDE.md`, Cursor rules, and workflow docs.
-- Teams who want **Superpowers + Agency** available **locally** under `vendor/`, either **committed** or **materialized after clone** via `--vendor-only`.
-
----
-
-## What to expect
-
-| Mode | What happens |
-|------|----------------|
-| **Interactive** (default) | Prompts for project name, language, framework, test/lint/build, database, and platforms. Uses **auto-detected** defaults when possible. |
-| **`--yes`** | No prompts: detection + defaults; both platforms unless `--platforms=`. |
-| **`--vendor-only`** | **No template writes.** Only clones/copies Superpowers + Agency (same as the vendor phase of a full `init`). Uses `--platforms=` or defaults to both. |
-
-**Full `init` (without `--skip-vendor`)** writes templates, updates **`.gitignore`** (managed `/vendor/` block), then vendors upstream (unless template writes failed). **First vendor run** may take **1–2 minutes** (network + `git clone`; with **Cursor**, `convert.sh` is slow). **Disk:** `vendor/` is large.
-
-**Failure** (no `git`, `bash`, or network): the process **exits with an error**.
-
----
-
-## Prerequisites
-
-| Tool | Why |
-|------|-----|
-| Node.js 18+ | Runs the CLI |
-| `git` | Shallow-clones `vendor/superpowers` and `vendor/agency-agents` |
-| `bash` | Runs `vendor/agency-agents/scripts/convert.sh` when **Cursor** is selected |
-
-**Windows:** use **Git Bash** or **WSL** so `bash` is available.
-
----
-
-## Quick start
-
-**1.** `cd` to your project root.
-
-**2.** Run:
-
-```bash
-npx ai-dev-setup init
-```
-
-Or non-interactive full setup (templates + vendor):
-
-```bash
-npx ai-dev-setup init --yes
-```
-
-**3.** Follow **Recommended team workflow** above if you are **not** committing `vendor/`.
-
-**4.** Open the project in Claude Code or Cursor.
-
----
-
-## First-time usage: Superpowers + Agency
-
-After **`init`** has finished (full run **or** **`init --vendor-only`** so `vendor/` exists), you can start using the setup in plain language. **Superpowers + Agency are the default** for both tools once vendored content exists—**Cursor** also ships **`routing.mdc`** so that default applies without you naming plugin paths each chat. Exact UI (slash menus, rules picker) depends on your **Claude Code** or **Cursor** version; the ideas below always apply.
-
-### Example 1 — Claude Code: `/kickoff` on a small feature
-
-1. Open the **project root** in Claude Code.
-2. Let the session load **`CLAUDE.md`** (stack, commands, and where **Superpowers** / **Agency** live under `vendor/`).
-3. Run **`/kickoff`** and describe one feature, e.g. *“Add a `/health` JSON route and tests.”*
-4. That command is aligned with **`.ai/workflow.md`**: you get scoped goals, risks, and a task list tied to your repo’s **test/lint/build** commands—your first practical use of the **Superpowers-style** planning loop without naming individual skills.
-
-### Example 2 — Cursor: one chat, workflow + Superpowers
-
-1. Open the project in Cursor.
-2. If needed, enable the workspace **Superpowers** plugin (see **After `init`: checklist** later in this README).
-3. In chat, ask something specific, e.g. *“Read `.cursorrules` and `.ai/workflow.md`. I need to fix a bug in `[path/to/file]`. Propose a short plan, then implement.”*
-4. **`.cursor/rules/`** (workflow, review, agents) plus **Superpowers** (via **`.cursor-plugin`** → `vendor/superpowers/`) keep the assistant in a structured flow; you do not need to hand-edit those paths each time.
-
-### Example 3 — Agency: pick a specialist from `.ai/agents.md`
-
-1. Open **`.ai/agents.md`** and skim the **Engineering** and **Quality** tables (e.g. tests, review, security).
-2. Ask the assistant to work in that role, e.g. *“Using the testing specialist from `.ai/agents.md`, review tests for `[module]` and list missing cases.”*
-3. **Claude Code** maps this to **`.claude/agents/`**. **Cursor** maps to **`agency-*.mdc`** under **`.cursor/rules/`** when the task matches that specialist.
-
----
-
-## Usage examples
-
-| Goal | Command |
-|------|---------|
-| Full setup, both tools, no questions | `npx ai-dev-setup init --yes` |
-| **Templates only** (commit scaffold; ignore `vendor/`) | `npx ai-dev-setup init --yes --skip-vendor` |
-| **Vendor only** (after clone; do not overwrite templates) | `npx ai-dev-setup init --vendor-only --platforms=claude,cursor` |
-| **Claude Code only** | `npx ai-dev-setup init --yes --platforms=claude` |
-| **Cursor only** | `npx ai-dev-setup init --yes --platforms=cursor` |
-| Overwrite templates + refresh `vendor/` | `npx ai-dev-setup init --yes --force` |
-| Pin upstream branches/tags | `npx ai-dev-setup init --yes --superpowers-ref=v5.0.7 --agency-ref=main` |
-| Help | `npx ai-dev-setup --help` |
-
-**Note:** `npx ai-dev-setup` defaults to `init`.
-
----
-
-## After `init`: checklist
-
-1. Fill in **`docs/ARCHITECTURE.md`** (and other `docs/*` as needed).
-2. Skim **`.ai/rules.md`** and adjust for your team.
-3. **Commit** scaffold files (including **`.gitignore`**). If you use **templates-only** flow, **do not commit** `vendor/`; **`.gitignore`** should already list **`/vendor/`** from `init`. Ensure teammates run **`--vendor-only`** (or your `vendor:ai` script) after clone.
-4. In **Cursor**, enable the workspace **Superpowers** plugin if your Cursor version requires it.
-5. When **Cursor** is among your selected platforms, **`.cursorignore`** lists **`vendor/superpowers/`** and **`vendor/agency-agents/`** so Cursor indexes less of the vendored trees (fewer noisy imports and search hits). If that hides files your workflow or the Superpowers plugin needs in the UI, remove or narrow those lines.
-6. **Updates:** re-run `init --yes --force` or `init --vendor-only --force` with pinned refs, or `git pull` inside `vendor/*` manually.
-
----
-
 ## What gets generated
 
 ### Templates (full `init`; skipped with `--vendor-only`)
@@ -190,11 +129,13 @@ docs/
   SECURITY.md
 ```
 
-**`.gitignore`:** each **`init`** merges in a managed **`/vendor/`** block (safe with existing rules); not listed above as a static template file.
+**`.gitignore`:** each **`init`** merges in a managed **`/vendor/`** block (safe with existing rules).
 
-**Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json`, `.claude/commands/*`, **`.claudeignore`**.
+**Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json`, `.claude/commands/*` (`/kickoff`, `/implement`, `/review`, `/ship`), **`.claudeignore`**.
 
-**Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `routing.mdc` (defaults to Superpowers + Agency), `workflow.mdc`, `review.mdc`, `agents.mdc`, **`.cursorignore`**.
+**Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `routing.mdc`, `workflow.mdc`, `review.mdc`, `agents.mdc`, **`.cursorignore`**.
+
+> **Cursor:** `.cursorignore` excludes `vendor/superpowers/` and `vendor/agency-agents/` from indexing by default. Remove those lines if your workflow needs them visible in Cursor's file tree.
 
 ### Vendor step (`--vendor-only` or full `init` without `--skip-vendor`)
 
@@ -203,26 +144,11 @@ docs/
 | `vendor/superpowers/` | Superpowers (shallow clone) |
 | `vendor/agency-agents/` | Agency Agents (shallow clone) |
 | `.cursor-plugin/plugin.json` | Points at `vendor/superpowers/` (Cursor) |
-| `.claude/skills/` | Superpowers skills (Claude) |
-| `.claude/agents/` | Agency agents, project-local |
-| `.cursor/rules/agency-*.mdc` | Agency Cursor rules |
+| `.claude/skills/` | Superpowers skills (Claude Code) |
+| `.claude/agents/` | Agency agent files, project-local |
+| `.cursor/rules/agency-*.mdc` | Agency specialist rules (Cursor) |
 
-`convert.sh` runs **only when Cursor is selected**.
-
-**Alternative:** commit `vendor/` so clones need no second step — at the cost of a large repo. **To do that**, remove the **ai-dev-setup** managed block from **`.gitignore`** (from `# --- ai-dev-setup: vendor (managed) ---` through `# --- end ai-dev-setup vendor ---`) or otherwise stop ignoring **`vendor/`**, then commit the `vendor/` directory as usual.
-
----
-
-## Escape hatch: manual clone
-
-If you used `--skip-vendor` or `--vendor-only` is not an option:
-
-```bash
-git clone --depth 1 --branch main https://github.com/obra/superpowers.git vendor/superpowers
-git clone --depth 1 --branch main https://github.com/msitarzewski/agency-agents.git vendor/agency-agents
-```
-
-For Cursor Agency rules, run `bash scripts/convert.sh` in `vendor/agency-agents`, then copy `integrations/cursor/rules/*.mdc` to `.cursor/rules/` with an `agency-` prefix — or use **`init --vendor-only`** when you can.
+`convert.sh` runs **only when Cursor is selected**. To commit `vendor/` instead, remove the managed block from `.gitignore` (between `# --- ai-dev-setup: vendor (managed) ---` and `# --- end ai-dev-setup vendor ---`).
 
 ---
 
@@ -240,8 +166,6 @@ For Cursor Agency rules, run `bash scripts/convert.sh` in `vendor/agency-agents`
 | `--platforms=a,b` | `claude`, `cursor` (default: both when omitted) |
 | `-h`, `--help` | Help |
 | `-v`, `--version` | Version |
-
-Commands: `init` (default), `update` (placeholder).
 
 ---
 
@@ -267,27 +191,28 @@ Commands: `init` (default), `update` (placeholder).
 | `go` | Go |
 | `flutter` | Flutter / Dart |
 
-Detection uses `package.json`, `tsconfig.json`, `next.config.*`, `nest-cli.json`, `go.mod`, `pyproject.toml` / `requirements.txt`, `pubspec.yaml`, and common dependencies.
+Auto-detected from `package.json`, `tsconfig.json`, `next.config.*`, `nest-cli.json`, `go.mod`, `pyproject.toml` / `requirements.txt`, and `pubspec.yaml`. Override or extend with `--stack=ts,react`.
 
 ---
 
-## Superpowers + Agency (core behavior)
+## Security and trust
 
-- **Superpowers** — workflow engine under `vendor/superpowers`, `.claude/skills/`, `.cursor-plugin`.
-- **Agency** — specialists: `agency-*.mdc`, `.claude/agents/`.
-- Generated docs treat both as **required** for this scaffold.
-- **Subagents / Task execution:** Superpowers skills like `subagent-driven-development` control *how* work is delegated (isolated workers, reviews). **Agency** still defines *who* implements—each implementation worker should load the specialist file named in the plan or mapped in `.ai/agents.md` (see that file’s section on implementation plans).
+- **This package** does not register a `postinstall` script. Running the vendor step is **always explicit** (`init` or your own script).
+- **Git refs** passed to `git clone -b` are validated (alphanumeric branch/tag style only) to reduce misuse.
+- **Advanced (optional):** if your team adds a **consumer** `postinstall` that runs `vendor:ai`, document it, skip when `CI=true`, and expect some environments to use `npm install --ignore-scripts`.
 
 ---
 
-## Token optimization
+## Escape hatch: manual clone
 
-| File | Role |
-|------|------|
-| `CLAUDE.md` / `.cursorrules` | Short index |
-| `.ai/*.md` | Shared standards |
-| `docs/*.md` | Deeper references |
-| `core-rules.mdc` | Small **alwaysApply** surface |
+If you used `--skip-vendor` or `--vendor-only` is not an option:
+
+```bash
+git clone --depth 1 --branch main https://github.com/obra/superpowers.git vendor/superpowers
+git clone --depth 1 --branch main https://github.com/msitarzewski/agency-agents.git vendor/agency-agents
+```
+
+For Cursor Agency rules, run `bash scripts/convert.sh` in `vendor/agency-agents`, then copy `integrations/cursor/rules/*.mdc` to `.cursor/rules/` with an `agency-` prefix — or use **`init --vendor-only`** when you can.
 
 ---
 
@@ -296,30 +221,13 @@ Detection uses `package.json`, `tsconfig.json`, `next.config.*`, `nest-cli.json`
 | Problem | What to do |
 |---------|------------|
 | Scaffold committed; need `vendor/` only | `npx ai-dev-setup init --vendor-only --platforms=claude,cursor` |
-| `git is required` / clone errors | Install Git; network; valid refs |
+| `git is required` / clone errors | Install Git; check network; use valid refs |
 | `bash is required` | Git Bash / WSL, or `--platforms=claude` |
 | `Invalid git ref` | Use only safe branch/tag characters (see `--superpowers-ref` / `--agency-ref`) |
 | `Cannot use --skip-vendor with --vendor-only` | Pick one mode |
 | `npm install` did not create `vendor/` | Expected. Run `init --vendor-only` or `npm run vendor:ai` |
 | Huge repo if committing `vendor/` | Use **Recommended team workflow** instead |
-
----
-
-## Risk register
-
-- Upstream layout may change. Pin with `--superpowers-ref` / `--agency-ref`.
-- Cursor plugin behavior may vary by version.
-- Vendor failures are **loud** (non-zero exit).
-
----
-
-## Contributing: add a platform
-
-1. Subclass `Platform` in `src/platforms/your-platform.js` and implement `async getFiles(config)`.
-2. `register(new YourPlatform())` in that file.
-3. Import from `src/commands/init.js` and add to `PLATFORMS` in `src/constants.js`.
-4. Add templates under `src/templates/your-platform/`.
-5. Extend `tests/platforms.test.js`.
+| Updates needed | Re-run `init --yes --force` or `init --vendor-only --force` with pinned refs |
 
 ---
 
