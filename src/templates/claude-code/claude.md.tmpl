@@ -19,17 +19,53 @@ Do not treat Superpowers or Agency as optional add-ons. If `vendor/` is missing,
 
 ## Dispatch rules (non-negotiable)
 
-**NEVER dispatch an implementation Task/subagent without binding an Agency specialist.**
+**NEVER dispatch an implementation Task with `subagent_type: "general-purpose"`.** Every implementation worker is bound to an Agency specialist via Claude Code's native `subagent_type` mechanism.
 
-1. **Every implementation worker** (subagent, Task, or inline) MUST load the Agency file from `.claude/agents/<role>.md` — start the prompt with the agent's identity and constraints, or attach the file
-2. **"Sub-agent driven approach"** = execution transport (Superpowers task isolation), NOT persona. The **persona is ALWAYS from Agency**, per plan or `.ai/agents.md`
-3. **Plan names an Agency role?** Load `.claude/agents/<role>.md` before execution
-4. **Plan is silent on roles?** Map tasks using `.ai/agents.md` tables: API/server → `backend-architect`, UI → `frontend-developer`, tests → `qa-tester`, infra → `devops-engineer`
-5. **Superpowers reviewer subagents** (spec-check, code-quality) keep their workflow role — they are gates, not implementers; do not override with Agency files
+### Rule 1 — Use `subagent_type`, not manual file loading
 
-## Earlier reference (background)
+Claude Code auto-loads the full Agency persona (all constraints, anti-patterns, deliverables) when you pass the matching `subagent_type`. Do **not** Read the file manually and paste it into a prompt — that is obsolete. Dispatch like this:
 
-Skills like **subagent-driven-development** mean *isolated workers + review loops* (orchestration). They do **not** define *who* implements. **Agency** supplies specialist definitions under `.claude/agents/*.md`.
+```
+Task({
+  subagent_type: "engineering-backend-architect",   // exact filename, no .md
+  description: "Implement Task N: <short name>",
+  prompt: "<task spec + context from the plan>"
+})
+```
+
+### Rule 2 — Agency filenames use division prefixes
+
+The agent files in `.claude/agents/` come from upstream and are named with a **division prefix** (`engineering-`, `testing-`, `product-`). Bare names like `backend-architect` do **not** resolve. Authoritative mapping lives in **`.claude/agents/_index.json`** (written by `ai-dev-setup`). The common roles are:
+
+| Task focus | `subagent_type` |
+|------------|-----------------|
+| API / backend / server logic | `engineering-backend-architect` |
+| UI / frontend / components | `engineering-frontend-developer` |
+| Tests / API testing | `testing-api-tester` |
+| Performance / benchmarking | `testing-performance-benchmarker` |
+| Infra / CI / scripts | `engineering-devops-automator` |
+| System architecture | `engineering-software-architect` |
+| Code review | `engineering-code-reviewer` |
+| Security review | `engineering-security-engineer` |
+| Documentation | `engineering-technical-writer` |
+| Product / scope / requirements | `product-manager` |
+| Senior generalist dev | `engineering-senior-developer` |
+
+When the plan is silent on roles, map tasks using this table before dispatching. If a role you want is not present, open `.claude/agents/_index.json` and pick the closest match.
+
+### Rule 3 — Override Superpowers' `subagent-driven-development` template
+
+`.claude/skills/subagent-driven-development/implementer-prompt.md` shows `Task tool (general-purpose)`. **You MUST substitute** the Agency `subagent_type` from Rule 2 when you actually dispatch. Superpowers defines *transport* (fresh context, two-stage review, status handling); Agency defines *persona*. Both apply together. Treating the Superpowers template literally — i.e. passing `general-purpose` — discards the entire Agency system and produces generic output. Do not do this.
+
+This substitution is also required for `/implement`, `/kickoff`-generated plans, and any ad-hoc Task dispatch you perform while executing work in this repo.
+
+### Rule 4 — Reviewer subagents keep their Superpowers role
+
+Superpowers' spec-compliance and code-quality reviewer subagents (`spec-reviewer-prompt.md`, `code-quality-reviewer-prompt.md`) are **gates**, not implementers. Dispatch them as Superpowers defines — do **not** override with Agency specialists.
+
+### Rule 5 — Fail loudly on missing agents
+
+Before dispatching, if the `subagent_type` you intend to use is not present in `.claude/agents/_index.json`, stop and report it. Do not silently fall back to `general-purpose`. A missing agent means `vendor/` is broken or outdated — re-run `npx ai-dev-setup init --vendor-only --force`.
 
 ## Read first (onboarding)
 
