@@ -13,33 +13,56 @@
 
 **Superpowers** skills such as `subagent-driven-development` describe *how* to delegate (fresh context, reviews). **Agency** files describe *who* does the work (backend architect, frontend developer, etc.). Both apply together.
 
+### Claude Code: dispatch via native `subagent_type`
+
+Claude Code auto-loads the full Agency persona when you dispatch with the matching `subagent_type`:
+
+```
+Task({
+  subagent_type: "engineering-backend-architect",   // NOT "general-purpose"
+  description: "Implement Task N: <short name>",
+  prompt: "<task spec + context, exactly as Superpowers' implementer-prompt.md defines>"
+})
+```
+
+The runtime opens `.claude/agents/engineering-backend-architect.md` and installs its full body as the subagent's system prompt — no manual Read, no inlining, no ambiguity.
+
+**Substitution rule for Superpowers:** when `subagent-driven-development`'s `implementer-prompt.md` shows `Task tool (general-purpose)`, **substitute** the Agency `subagent_type` from the tables below. The Superpowers template is transport; the persona is Agency. This is mandatory, not optional.
+
+### Cursor: attach the matching rule
+
 | Situation | What to do |
 |-----------|------------|
-| Plan names an Agency role | Orchestrator loads that definition from **`.claude/agents/*.md`** (Claude Code) or **`agency-*.mdc`** (Cursor) and **binds it to every implementation Task/subagent**—prepend a short “You are operating as …” block with the agent’s constraints, or attach the file. |
-| Plan is silent on roles | Map each task using the tables below (e.g. API/server work → backend architect; UI → frontend developer). Prefer listing concrete agent filenames in the plan when ambiguous. |
-| User says “sub-agent” / “Task” execution | Treat that as Superpowers **transport** only; **persona** still comes from Agency as above. |
+| Plan names an Agency role | Reference the rule with `@agency-backend-architect.mdc` (or equivalent — see Cursor column in tables below) in the Cursor chat before asking it to implement. |
+| Plan is silent on roles | Map each task using the tables below. Prefer listing concrete agent filenames in the plan when ambiguous. |
+| User says "sub-agent" / "Task" execution | Treat that as Superpowers **transport** only; **persona** still comes from Agency as above. |
 
-**Anti-pattern:** Dispatching implementation subagents with only raw task text and no Agency role when this repo vendors Agency.
+> **Naming warning (Claude Code ≠ Cursor):** Claude Code uses the upstream filename with division prefix (`engineering-backend-architect`). Cursor uses the slugified frontmatter `name:` field (`backend-architect`). They are NOT interchangeable — use the column that matches your platform.
+
+**Anti-pattern:** Dispatching implementation subagents with `subagent_type: "general-purpose"` when this repo vendors Agency. The Agency file (200+ lines of constraints, anti-patterns, deliverable templates) is the point — skipping it produces generic output.
 
 ## Engineering agents
 
-| Task focus | Agent file | Role |
-|------------|-----------|------|
-| API / backend / server logic | `backend-architect` | Architecture + implementation, database design, APIs |
-| UI / frontend / components | `frontend-developer` | Frontend implementation, styling, component structure |
-| Tests / coverage / fixtures | `qa-tester` | Test writing, coverage gaps, edge cases, test fixtures |
-| Performance / optimization | `performance-engineer` | Profiling, hot paths, allocations, I/O, caching |
-| Infra / CI / tooling / scripts | `devops-engineer` | Infrastructure, pipelines, scripts, developer ergonomics |
-| Product / requirements | `product-manager` | Scope, acceptance criteria, risks, user story mapping |
-| System architecture | `system-architect` | Boundaries, modules, data flow, system design |
+> Claude Code uses the **upstream filename** (division-prefixed). Cursor uses the **frontmatter name slug** (no prefix). See warning above. If unsure, open `.claude/agents/_index.json` for the authoritative Claude Code map.
+
+| Task focus | Claude Code `subagent_type` | Cursor rule | Role |
+|------------|-----------------------------|-------------|------|
+| API / backend / server logic | `engineering-backend-architect` | `@agency-backend-architect.mdc` | Architecture + implementation, database design, APIs |
+| UI / frontend / components | `engineering-frontend-developer` | `@agency-frontend-developer.mdc` | Frontend implementation, styling, component structure |
+| Tests / API testing | `testing-api-tester` | `@agency-api-tester.mdc` | Test writing, coverage gaps, edge cases, test fixtures |
+| Performance / benchmarking | `testing-performance-benchmarker` | `@agency-performance-benchmarker.mdc` | Profiling, hot paths, allocations, I/O, caching |
+| Infra / CI / scripts | `engineering-devops-automator` | `@agency-devops-automator.mdc` | Infrastructure, pipelines, scripts, developer ergonomics |
+| Product / requirements | `product-manager` | `@agency-product-manager.mdc` | Scope, acceptance criteria, risks, user story mapping |
+| System architecture | `engineering-software-architect` | `@agency-software-architect.mdc` | Boundaries, modules, data flow, system design |
+| Senior generalist dev | `engineering-senior-developer` | `@agency-senior-developer.mdc` | Cross-cutting implementation, refactors, integration work |
 
 ## Quality agents
 
-| Task focus | Agent file | Role |
-|------------|-----------|------|
-| Code review | `code-reviewer` | Correctness, safety, maintainability, style |
-| Security review | `security-engineer` | Threats, authz, input validation, secrets, supply chain |
-| Documentation | `technical-writer` | Clarity, examples, diagrams, API documentation |
+| Task focus | Claude Code `subagent_type` | Cursor rule | Role |
+|------------|-----------------------------|-------------|------|
+| Code review | `engineering-code-reviewer` | `@agency-code-reviewer.mdc` | Correctness, safety, maintainability, style |
+| Security review | `engineering-security-engineer` | `@agency-security-engineer.mdc` | Threats, authz, input validation, secrets, supply chain |
+| Documentation | `engineering-technical-writer` | `@agency-technical-writer.mdc` | Clarity, examples, diagrams, API documentation |
 
 ## Quality expectations per specialist
 

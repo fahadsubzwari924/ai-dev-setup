@@ -7,6 +7,8 @@ import {
   rewriteSuperpowersCursorPlugin,
   copyAgencyCursorRules,
   markdownStartsWithFrontmatter,
+  readMarkdownFrontmatter,
+  writeAgencyIndex,
 } from '../src/core/vendors.js';
 
 describe('vendors', () => {
@@ -78,6 +80,115 @@ describe('vendors', () => {
       const p = path.join(tmp, 'b.md');
       await fs.writeFile(p, '# Hi\n', 'utf8');
       assert.equal(await markdownStartsWithFrontmatter(p), false);
+    });
+  });
+
+  describe('readMarkdownFrontmatter', () => {
+    /** @type {string} */
+    let tmp;
+
+    before(async () => {
+      tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'ai-dev-fm-parse-'));
+    });
+
+    after(async () => {
+      await fs.rm(tmp, { recursive: true, force: true });
+    });
+
+    it('parses simple key/value pairs', async () => {
+      const p = path.join(tmp, 'agent.md');
+      await fs.writeFile(
+        p,
+        '---\nname: Backend Architect\ndescription: Senior backend specialist\ncolor: blue\n---\n# Body\n',
+        'utf8',
+      );
+      const fm = await readMarkdownFrontmatter(p);
+      assert.equal(fm.name, 'Backend Architect');
+      assert.equal(fm.description, 'Senior backend specialist');
+      assert.equal(fm.color, 'blue');
+    });
+
+    it('strips surrounding quotes', async () => {
+      const p = path.join(tmp, 'quoted.md');
+      await fs.writeFile(p, '---\nname: "Backend Architect"\n---\n', 'utf8');
+      const fm = await readMarkdownFrontmatter(p);
+      assert.equal(fm.name, 'Backend Architect');
+    });
+
+    it('returns empty object when no frontmatter', async () => {
+      const p = path.join(tmp, 'plain.md');
+      await fs.writeFile(p, '# Hi\n', 'utf8');
+      const fm = await readMarkdownFrontmatter(p);
+      assert.deepEqual(fm, {});
+    });
+  });
+
+  describe('writeAgencyIndex', () => {
+    /** @type {string} */
+    let tmp;
+
+    before(async () => {
+      tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'ai-dev-index-'));
+      const agentsDir = path.join(tmp, '.claude', 'agents');
+      await fs.mkdir(agentsDir, { recursive: true });
+      await fs.writeFile(
+        path.join(agentsDir, 'engineering-backend-architect.md'),
+        '---\nname: Backend Architect\ndescription: Senior backend architect\n---\n# body\n',
+        'utf8',
+      );
+      await fs.writeFile(
+        path.join(agentsDir, 'testing-api-tester.md'),
+        '---\nname: API Tester\ndescription: Tests APIs\n---\n# body\n',
+        'utf8',
+      );
+      await fs.writeFile(
+        path.join(agentsDir, 'product-manager.md'),
+        '---\nname: Product Manager\ndescription: Scope and priorities\n---\n# body\n',
+        'utf8',
+      );
+      // file without frontmatter — must be skipped
+      await fs.writeFile(path.join(agentsDir, 'README.md'), '# readme, no fm\n', 'utf8');
+    });
+
+    after(async () => {
+      await fs.rm(tmp, { recursive: true, force: true });
+    });
+
+    it('writes _index.json with subagent_type, division, name, description', async () => {
+      const count = await writeAgencyIndex(tmp);
+      assert.equal(count, 3);
+      const raw = await fs.readFile(
+        path.join(tmp, '.claude', 'agents', '_index.json'),
+        'utf8',
+      );
+      const manifest = JSON.parse(raw);
+      assert.equal(manifest.count, 3);
+      assert.ok(Array.isArray(manifest.agents));
+      const byType = Object.fromEntries(manifest.agents.map((a) => [a.subagentType, a]));
+
+      assert.ok(byType['engineering-backend-architect']);
+      assert.equal(byType['engineering-backend-architect'].division, 'engineering');
+      assert.equal(byType['engineering-backend-architect'].name, 'Backend Architect');
+      assert.equal(
+        byType['engineering-backend-architect'].file,
+        'engineering-backend-architect.md',
+      );
+
+      assert.ok(byType['testing-api-tester']);
+      assert.equal(byType['testing-api-tester'].division, 'testing');
+
+      assert.ok(byType['product-manager']);
+      assert.equal(byType['product-manager'].division, 'product');
+    });
+
+    it('returns 0 when .claude/agents/ is missing', async () => {
+      const empty = await fs.mkdtemp(path.join(os.tmpdir(), 'ai-dev-index-empty-'));
+      try {
+        const count = await writeAgencyIndex(empty);
+        assert.equal(count, 0);
+      } finally {
+        await fs.rm(empty, { recursive: true, force: true });
+      }
     });
   });
 });
