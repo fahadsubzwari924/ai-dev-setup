@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { assertSafeGitRef } from './git-ref.js';
 import { createReadStream } from 'node:fs';
@@ -99,6 +100,60 @@ async function gitShallowClone(cwd, relDir, url, ref, force) {
   }
   await fs.mkdir(path.dirname(target), { recursive: true });
   await runProcess('git', ['clone', '--depth', '1', '--branch', ref, url, target], { cwd });
+  return { skipped: false, path: relDir };
+}
+
+/**
+ * Directories within the Superpowers repo that consumer projects actually need.
+ * TypeScript source files in other directories (e.g. example .ts files with
+ * internal path aliases) are intentionally excluded to avoid breaking the
+ * consumer's TypeScript compiler.
+ */
+const SUPERPOWERS_NEEDED_DIRS = ['skills', 'hooks', '.cursor-plugin'];
+
+/**
+ * Clone the Superpowers repo into a temp directory, copy only the directories
+ * that consumer projects need, then delete the temp clone. This ensures no
+ * raw .ts source files from the upstream repo land inside the consumer project
+ * and get picked up by the consumer's TypeScript compiler.
+ *
+ * @param {string} cwd  project root
+ * @param {string} relDir  relative destination e.g. vendor/superpowers
+ * @param {string} url
+ * @param {string} ref  git branch/tag
+ * @param {boolean} force  overwrite if already present
+ */
+async function cloneSuperpowersFiltered(cwd, relDir, url, ref, force) {
+  const target = path.join(cwd, relDir);
+  try {
+    await fs.access(target);
+    if (force) {
+      await fs.rm(target, { recursive: true, force: true });
+    } else {
+      return { skipped: true, path: relDir };
+    }
+  } catch {
+    /* missing — proceed */
+  }
+
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ai-dev-setup-'));
+  try {
+    const tmpClone = path.join(tmpDir, 'superpowers');
+    await runProcess('git', ['clone', '--depth', '1', '--branch', ref, url, tmpClone]);
+    await fs.mkdir(target, { recursive: true });
+    for (const dir of SUPERPOWERS_NEEDED_DIRS) {
+      const src = path.join(tmpClone, dir);
+      try {
+        await fs.access(src);
+        await fs.cp(src, path.join(target, dir), { recursive: true });
+      } catch {
+        /* directory absent in upstream repo — skip */
+      }
+    }
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  }
+
   return { skipped: false, path: relDir };
 }
 
@@ -392,8 +447,8 @@ export async function installVendors(projectRoot, options) {
   const spRel = VENDOR_SUPERPOWERS;
   const agRel = VENDOR_AGENCY;
 
-  const sp = await gitShallowClone(projectRoot, spRel, SUPERPOWERS_GIT_URL, superpowersRef, force);
-  lines.push(sp.skipped ? `${sp.path} (already present, skipped clone — use --force to refresh)` : `+ ${sp.path} (cloned)`);
+  const sp = await cloneSuperpowersFiltered(projectRoot, spRel, SUPERPOWERS_GIT_URL, superpowersRef, force);
+  lines.push(sp.skipped ? `${sp.path} (already present, skipped clone — use --force to refresh)` : `+ ${sp.path} (cloned, filtered to needed directories only)`);
 
   const ag = await gitShallowClone(projectRoot, agRel, AGENCY_GIT_URL, agencyRef, force);
   lines.push(ag.skipped ? `${ag.path} (already present, skipped clone — use --force to refresh)` : `+ ${ag.path} (cloned)`);
