@@ -6,10 +6,22 @@ alwaysApply: true
 
 # Core rules
 
-- Default routing: `routing.mdc` — Superpowers for workflow phases, Agency specialist for execution (including **each** implementation subagent/Task). DISPATCH RULE: bind an `agency-*.mdc` role to every implementation task before starting
+- Default routing: `routing.mdc` — Superpowers for workflow phases, Agency specialist for execution (including **each** implementation subagent/Task). PLANNING RULE: every plan task must carry an `agency` field (`@agency-<slug>.mdc`) before the plan is emitted — a plan without it is incomplete. DISPATCH RULE: bind an `agency-*.mdc` role to every implementation task before starting
 - Read `.ai/rules.md` for full standards; obey stack row for {{LANGUAGE}} / {{FRAMEWORK}}
 - Max **200** lines/file, **50** lines/function; early returns; no commented-out code in commits
 - Run `{{LINT_CMD}}` before hand-off; fix or explain waivers
 - Do not commit secrets or log tokens/PII
 - Touch tests when behavior changes (`{{TEST_CMD}}`) or document the gap
-- Use `docs/CONVENTIONS.md` for stack-specific style; load other `docs/*` only when needed
+
+## Docs — read before acting, not after
+
+| Trigger | Must read first |
+|---------|----------------|
+| Creating or editing any file in `src/` | `docs/CONVENTIONS.md` — layer rules, naming, directory placement |
+| Any API/HTTP route, controller, or service | `docs/API-PATTERNS.md` — validation contract, layer boundaries |
+| Any error handling or logging | `docs/ERROR-HANDLING.md` |
+| Any auth, secrets, or user-input handling | `docs/SECURITY.md` |
+| Writing or modifying tests | `docs/TESTING-STRATEGY.md` |
+| Cross-module or architectural change | `docs/ARCHITECTURE.md` |
+
+Do not decide file location, naming, layer placement, or validation approach without reading the relevant doc first.

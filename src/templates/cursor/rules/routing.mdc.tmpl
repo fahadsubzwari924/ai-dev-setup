@@ -12,6 +12,24 @@ alwaysApply: true
 - Add a feature → plan (e.g. writing-plans) then implement and verify (TDD when a harness exists).
 - Review or ship → review/verification skills plus reviewer (or security) role as fits.
 
+## PLANNING RULE (non-negotiable)
+
+**Every plan task MUST include an Agency role before the plan is emitted.** Do not output a plan that has tasks without an assigned `agency` field.
+
+Required task schema — every row must carry all five fields:
+
+| Field | Example |
+|-------|---------|
+| `path` | `src/modules/reports/ReportService.ts` |
+| `intent` | Add monthly profit aggregation method |
+| `verify` | `npm test` passes / observable outcome |
+| `agency` | `@agency-backend-architect.mdc` |
+| `docs` | `docs/CONVENTIONS.md`, `docs/API-PATTERNS.md` |
+
+The `docs` field lists which reference files the implementer must read before starting the task. Map using: `src/` work → `docs/CONVENTIONS.md`; HTTP/API → `docs/API-PATTERNS.md`; errors → `docs/ERROR-HANDLING.md`; auth/secrets → `docs/SECURITY.md`; tests → `docs/TESTING-STRATEGY.md`; architectural change → `docs/ARCHITECTURE.md`. A task with no `docs` field is incomplete.
+
+**Superpowers template override for planning:** When Superpowers `writing-plans` skill is active it does not include an `agency` field — you MUST add it to every task before emitting the plan. Map using `.ai/agents.md` tables (API/server → `@agency-backend-architect.mdc`, UI → `@agency-frontend-developer.mdc`, tests → `@agency-api-tester.mdc`, infra → `@agency-devops-automator.mdc`, etc.). A plan with tasks that have no `agency` field is incomplete — do not present it to the user.
+
 ## DISPATCH RULE (non-negotiable)
 
 **Before dispatching any implementation Task/subagent:** prepend the matching `@agency-<slug>.mdc` reference at the top of the task prompt. Do **not** use a generic "implementer" persona. The `@` reference is what loads the full specialist rule (persona, constraints, anti-patterns, deliverable templates) — it is not cosmetic.

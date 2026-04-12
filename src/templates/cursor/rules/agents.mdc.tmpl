@@ -59,6 +59,19 @@ Without the `@agency-*.mdc` line, the agent has no specialist constraints and pr
 | Documentation | `@agency-technical-writer.mdc` |
 | Product / requirements | `@agency-product-manager.mdc` |
 
+## Docs to load before implementing
+
+Before the specialist begins any task, load the docs that apply to the work. Do not start writing code without reading the relevant doc first.
+
+| Work type | Must read before starting |
+|-----------|--------------------------|
+| Creating or editing any `src/` file | `docs/CONVENTIONS.md` — layer rules, naming, directory placement |
+| API/HTTP routes, controllers, services | `docs/API-PATTERNS.md` — validation contract, layer boundaries |
+| Error handling or logging | `docs/ERROR-HANDLING.md` |
+| Auth, secrets, or user-input handling | `docs/SECURITY.md` |
+| Tests | `docs/TESTING-STRATEGY.md` |
+| Architectural or cross-module change | `docs/ARCHITECTURE.md` |
+
 ## Anti-patterns
 
 - Sending a task prompt with only "You are operating as Backend Architect — ..." invented inline. That 1-line description is not the agent file — the full file has critical rules, deliverable templates, and quality standards.
