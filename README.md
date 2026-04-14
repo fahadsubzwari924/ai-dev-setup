@@ -147,7 +147,7 @@ docs/
 
 | Path | Purpose |
 |------|---------|
-| `vendor/superpowers/` | Superpowers (shallow clone) |
+| `vendor/superpowers/` | Superpowers (filtered copy; `skills/**/*.ts(x)` stripped to prevent consumer TS compile errors) |
 | `vendor/agency-agents/` | Agency Agents (shallow clone) |
 | `.cursor-plugin/plugin.json` | Points at `vendor/superpowers/` (Cursor) |
 | `.claude/skills/` | Superpowers skills (Claude Code) |
@@ -155,6 +155,8 @@ docs/
 | `.cursor/rules/agency-*.mdc` | Agency specialist rules (Cursor) |
 
 `convert.sh` runs **only when Cursor is selected**. To commit `vendor/` instead, remove the managed block from `.gitignore` (between `# --- ai-dev-setup: vendor (managed) ---` and `# --- end ai-dev-setup vendor ---`).
+
+During vendoring, `ai-dev-setup` removes raw TypeScript files under `vendor/superpowers/skills` (for example `*.ts` / `*.tsx` examples that may reference upstream-only path aliases) so your project's `tsc` does not attempt to compile them.
 
 ---
 
@@ -232,6 +234,7 @@ For Cursor Agency rules, run `bash scripts/convert.sh` in `vendor/agency-agents`
 | `Invalid git ref` | Use only safe branch/tag characters (see `--superpowers-ref` / `--agency-ref`) |
 | `Cannot use --skip-vendor with --vendor-only` | Pick one mode |
 | `npm install` did not create `vendor/` | Expected. Run `init --vendor-only` or `npm run vendor:ai` |
+| TypeScript errors from `vendor/superpowers/skills/*.ts` in consumer repo | Upgrade `ai-dev-setup`, then run `npx ai-dev-setup init --vendor-only --force` |
 | Huge repo if committing `vendor/` | Use **Recommended team workflow** instead |
 | Updates needed | Re-run `init --yes --force` or `init --vendor-only --force` with pinned refs |
 
