@@ -4,6 +4,14 @@
 
 Execute an implementation plan using Agency specialists via Claude Code's native `subagent_type` — never `general-purpose`.
 
+## Superpowers phase gate (non-negotiable)
+
+Complete these **before** pre-flight and execution. If a skill path is missing under `.claude/skills/`, stop and tell the user to run `npx ai-dev-setup init --vendor-only --force`.
+
+1. **using-superpowers** — Invoke the Skill tool for `.claude/skills/using-superpowers/` (or read `SKILL.md` there).
+2. **subagent-driven-development** — Read `.claude/skills/subagent-driven-development/` (implementer prompt, reviewer prompts, orchestration). Apply its transport and review gates; substitute Agency `subagent_type` per this command’s execution rules (never `general-purpose` for implementers).
+3. After all tasks: **verification-before-completion** — Load `.claude/skills/verification-before-completion/` and satisfy it before claiming the run is done (evidence: commands run, outcomes stated).
+
 ## Before running this command
 
 1. You have a **plan** from `/kickoff` (or another source) with **tasks**, **paths**, and an **Agency `subagent_type`** assigned per task (exact string, e.g. `engineering-backend-architect`).

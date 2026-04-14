@@ -34,6 +34,29 @@ describe('platforms', () => {
     assert.ok(claudeMd, 'expected CLAUDE.md');
     assert.ok(claudeMd.content.includes('Superpowers'), 'CLAUDE.md should mention Superpowers');
     assert.ok(claudeMd.content.includes('Agency'), 'CLAUDE.md should mention Agency');
+    assert.ok(
+      claudeMd.content.includes('Every message / every task'),
+      'CLAUDE.md should enforce routing parity',
+    );
+    const settings = files.find((f) => f.path === '.claude/settings.json');
+    assert.ok(settings, 'expected .claude/settings.json');
+    const settingsJson = JSON.parse(settings.content);
+    assert.ok(settingsJson.hooks?.SessionStart, 'settings should register SessionStart hooks');
+    const ss = settingsJson.hooks.SessionStart[0];
+    assert.ok(ss.matcher, 'SessionStart should have matcher');
+    assert.match(ss.matcher, /startup/);
+    const cmd = ss.hooks[0].command;
+    assert.ok(
+      cmd.includes('session-start') && cmd.includes('CLAUDE_PROJECT_DIR'),
+      'SessionStart command should invoke vendored session-start via project dir',
+    );
+    const kickoff = files.find((f) => f.path === '.claude/commands/kickoff.md');
+    assert.ok(kickoff?.content.includes('Superpowers phase gate'), 'kickoff should gate on Superpowers');
+    const implement = files.find((f) => f.path === '.claude/commands/implement.md');
+    assert.ok(
+      implement?.content.includes('verification-before-completion'),
+      'implement should require verification skill',
+    );
   });
 
   it('cursor platform returns expected paths and MDC frontmatter', async () => {
@@ -63,5 +86,9 @@ describe('platforms', () => {
     assert.match(routing.content, /alwaysApply:\s*true/);
     assert.ok(routing.content.includes('Superpowers'), 'routing rule should mention Superpowers');
     assert.ok(routing.content.includes('Agency'), 'routing rule should mention Agency');
+    assert.ok(
+      routing.content.includes('using-superpowers'),
+      'routing should require using-superpowers on first substantive turn',
+    );
   });
 });
