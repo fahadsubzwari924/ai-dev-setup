@@ -9,6 +9,7 @@ import {
   markdownStartsWithFrontmatter,
   readMarkdownFrontmatter,
   writeAgencyIndex,
+  removeTypeScriptFilesRecursive,
 } from '../src/core/vendors.js';
 
 describe('vendors', () => {
@@ -189,6 +190,37 @@ describe('vendors', () => {
       } finally {
         await fs.rm(empty, { recursive: true, force: true });
       }
+    });
+  });
+
+  describe('removeTypeScriptFilesRecursive', () => {
+    /** @type {string} */
+    let tmp;
+
+    before(async () => {
+      tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'ai-dev-ts-filter-'));
+      await fs.mkdir(path.join(tmp, 'skills', 'nested'), { recursive: true });
+      await fs.writeFile(path.join(tmp, 'skills', 'guide.md'), '# Keep me\n', 'utf8');
+      await fs.writeFile(path.join(tmp, 'skills', 'example.ts'), 'export const x = 1;\n', 'utf8');
+      await fs.writeFile(
+        path.join(tmp, 'skills', 'nested', 'component.tsx'),
+        'export const Comp = () => null;\n',
+        'utf8',
+      );
+      await fs.writeFile(path.join(tmp, 'skills', 'nested', 'note.txt'), 'keep\n', 'utf8');
+    });
+
+    after(async () => {
+      await fs.rm(tmp, { recursive: true, force: true });
+    });
+
+    it('removes .ts/.tsx files and keeps docs', async () => {
+      await removeTypeScriptFilesRecursive(path.join(tmp, 'skills'));
+
+      await assert.doesNotReject(fs.access(path.join(tmp, 'skills', 'guide.md')));
+      await assert.doesNotReject(fs.access(path.join(tmp, 'skills', 'nested', 'note.txt')));
+      await assert.rejects(fs.access(path.join(tmp, 'skills', 'example.ts')));
+      await assert.rejects(fs.access(path.join(tmp, 'skills', 'nested', 'component.tsx')));
     });
   });
 });

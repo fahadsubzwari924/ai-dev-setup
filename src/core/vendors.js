@@ -110,12 +110,39 @@ async function gitShallowClone(cwd, relDir, url, ref, force) {
  * consumer's TypeScript compiler.
  */
 const SUPERPOWERS_NEEDED_DIRS = ['skills', 'hooks', '.cursor-plugin'];
+const TYPESCRIPT_FILE_RE = /\.(?:[cm]?ts|tsx)$/i;
+
+/**
+ * Remove TypeScript source/example files from a tree copied from upstream
+ * so consumer TypeScript compilers do not try to resolve upstream-only aliases.
+ *
+ * @param {string} rootDir
+ */
+export async function removeTypeScriptFilesRecursive(rootDir) {
+  let entries;
+  try {
+    entries = await fs.readdir(rootDir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const ent of entries) {
+    const full = path.join(rootDir, ent.name);
+    if (ent.isDirectory()) {
+      await removeTypeScriptFilesRecursive(full);
+      continue;
+    }
+    if (ent.isFile() && TYPESCRIPT_FILE_RE.test(ent.name)) {
+      await fs.rm(full, { force: true });
+    }
+  }
+}
 
 /**
  * Clone the Superpowers repo into a temp directory, copy only the directories
- * that consumer projects need, then delete the temp clone. This ensures no
- * raw .ts source files from the upstream repo land inside the consumer project
- * and get picked up by the consumer's TypeScript compiler.
+ * that consumer projects need, strip TypeScript source/example files from
+ * vendored skills, then delete the temp clone. This ensures no raw upstream
+ * TypeScript files land inside the consumer project and get picked up by the
+ * consumer's TypeScript compiler.
  *
  * @param {string} cwd  project root
  * @param {string} relDir  relative destination e.g. vendor/superpowers
@@ -150,6 +177,7 @@ async function cloneSuperpowersFiltered(cwd, relDir, url, ref, force) {
         /* directory absent in upstream repo — skip */
       }
     }
+    await removeTypeScriptFilesRecursive(path.join(target, 'skills'));
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true });
   }
