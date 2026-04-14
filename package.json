@@ -1,6 +1,6 @@
 {
   "name": "ai-dev-setup",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "One command to scaffold optimized AI coding assistant rules for Claude Code, Cursor, and more",
   "type": "module",
   "bin": {

@@ -109,6 +109,12 @@ This is the **default adoption path** we recommend: small git history, explicit 
 
 **Important:** `npm install` **only** installs the `ai-dev-setup` package into `node_modules`. It does **not** clone Superpowers or Agency Agents. Populating `vendor/` always requires running **`init --vendor-only`** (or a full `init` without `--skip-vendor`) explicitly.
 
+### Claude Code: SessionStart hook and slash commands
+
+- **`.claude/settings.json`** includes a **SessionStart** hook that runs `vendor/superpowers/hooks/session-start`, injecting Superpowers **using-superpowers** at session start (same script as upstream; paths use `$CLAUDE_PROJECT_DIR`). **Without `vendor/superpowers/`**, the hook has nothing to run—use `init --vendor-only` after clone.
+- **`/kickoff`, `/implement`, `/review`, `/ship`** each start with a **Superpowers phase gate**: named skills under `.claude/skills/` (e.g. `using-superpowers`, `writing-plans`, `subagent-driven-development`, `verification-before-completion`) **plus** existing Agency rules (`subagent_type`, `_index.json`). If skills are missing, refresh with `init --vendor-only --force`.
+- **Pinning** `--superpowers-ref` to a tag reduces drift if upstream renames skill folders.
+
 ---
 
 ## What gets generated
@@ -131,7 +137,7 @@ docs/
 
 **`.gitignore`:** each **`init`** merges in a managed **`/vendor/`** block (safe with existing rules).
 
-**Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json`, `.claude/commands/*` (`/kickoff`, `/implement`, `/review`, `/ship`), **`.claudeignore`**.
+**Claude Code** (when `claude` is selected): `CLAUDE.md`, `.claude/settings.json` (permissions + **SessionStart** hook → vendored Superpowers), `.claude/commands/*` (`/kickoff`, `/implement`, `/review`, `/ship`), **`.claudeignore`**.
 
 **Cursor** (when `cursor` is selected): `.cursorrules`, `.cursor/rules/core-rules.mdc`, `routing.mdc`, `workflow.mdc`, `review.mdc`, `agents.mdc`, **`.cursorignore`**.
 
