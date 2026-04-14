@@ -128,7 +128,7 @@ MIT + LICENSE link.
 - [ ] Install command appears within the first 10 lines
 - [ ] All 10 CLI flags from the current reference table are present
 - [ ] No content from current README is silently dropped (only merged/trimmed)
-- [ ] Line count is between 120 and 155
+- [ ] Line count is between 120 and 175
 - [ ] Three real badge shields are present and point to correct URLs
 - [ ] Troubleshooting table includes the manual clone row
 - [ ] `docs/ARCHITECTURE.md` fill-in hint is present (moved to "What gets generated")

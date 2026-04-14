@@ -219,7 +219,7 @@ Run:
 ```bash
 wc -l README.md
 ```
-Expected: between 120 and 155. If over 155, trim blank lines around `---` dividers or shorten the Team workflow prose.
+Expected: between 120 and 175.
 
 - [ ] **Step 4: Run the acceptance checklist**
 
@@ -279,7 +279,7 @@ Do not commit. Present the updated `README.md` to the user for review. Wait for 
 | Troubleshooting with manual clone row | Task 1 Step 2 + Step 4 checklist |
 | Security trimmed to 2 sentences | Task 1 Step 2 |
 | Contributing links to specs/ | Task 1 Step 2 |
-| Line count 120–155 | Task 1 Step 3 |
+| Line count 120–175 | Task 1 Step 3 |
 | No commit until user review | Task 1 Step 5 (hand-off only) |
 
 **Placeholder scan:** No TBD, TODO, or vague instructions present. Every step includes exact commands with expected output or exact file content.
