@@ -1,6 +1,6 @@
 # README Redesign Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Dispatch as `@agency-technical-writer.mdc` — prepend that rule reference at the top of every implementation subagent prompt before any task content. Superpowers:subagent-driven-development governs the transport/isolation; `@agency-technical-writer.mdc` governs the persona. Both are required. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rewrite `README.md` from 253 scattered lines into a lean (~120–155 line) solo-user-first, action-first single file following the approved design spec.
 
@@ -253,22 +253,9 @@ Check each item manually:
 [ ] "Supported stacks" appears only once (merged into Platforms & stacks)
 ```
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Hand off for review**
 
-```bash
-git add README.md
-git commit -m "docs: redesign README for solo-user-first, action-first structure
-
-- Move install command to top 10 lines
-- Add npm version, license, Node ≥ 18 badges
-- Replace Why + Superpowers+Agency sections with tight 4-bullet hero
-- Collapse Quick Start to 3 steps with copy-pasteable git commit
-- Add annotated file tree to What gets generated
-- Rewrite Team workflow as labelled command blocks
-- Merge duplicate Platforms and Stacks sections
-- Fold escape hatch into Troubleshooting table
-- Trim from 253 to ~150 lines"
-```
+Do not commit. Present the updated `README.md` to the user for review. Wait for explicit approval before any git operations.
 
 ---
 
@@ -293,6 +280,7 @@ git commit -m "docs: redesign README for solo-user-first, action-first structure
 | Security trimmed to 2 sentences | Task 1 Step 2 |
 | Contributing links to specs/ | Task 1 Step 2 |
 | Line count 120–155 | Task 1 Step 3 |
+| No commit until user review | Task 1 Step 5 (hand-off only) |
 
 **Placeholder scan:** No TBD, TODO, or vague instructions present. Every step includes exact commands with expected output or exact file content.
 
