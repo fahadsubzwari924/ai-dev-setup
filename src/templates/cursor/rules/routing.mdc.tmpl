@@ -49,7 +49,7 @@ The `docs` field lists which reference files the implementer must read before st
 | Documentation | `@agency-technical-writer.mdc` |
 | Product / requirements | `@agency-product-manager.mdc` |
 
-> **Naming:** Cursor slugs come from each agent's frontmatter `name:` field (e.g. "Backend Architect" → `backend-architect`). Claude Code uses the upstream filename (`engineering-backend-architect`). They are different — do not mix them.
+> **Naming:** Cursor slugs come from each agent's frontmatter `name:` field, slugified (e.g. "Backend Architect" → `backend-architect`). Claude Code uses the frontmatter `name:` field as-is as `subagent_type` (e.g. `"Backend Architect"`). They are different formats — do not mix them.
 
 ## SUPERPOWERS OVERRIDE (non-negotiable)
 

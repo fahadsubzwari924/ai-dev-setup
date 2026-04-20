@@ -165,21 +165,20 @@ describe('vendors', () => {
       const manifest = JSON.parse(raw);
       assert.equal(manifest.count, 3);
       assert.ok(Array.isArray(manifest.agents));
+      // subagentType is now the frontmatter name (the actual Claude Code dispatch value)
       const byType = Object.fromEntries(manifest.agents.map((a) => [a.subagentType, a]));
 
-      assert.ok(byType['engineering-backend-architect']);
-      assert.equal(byType['engineering-backend-architect'].division, 'engineering');
-      assert.equal(byType['engineering-backend-architect'].name, 'Backend Architect');
-      assert.equal(
-        byType['engineering-backend-architect'].file,
-        'engineering-backend-architect.md',
-      );
+      assert.ok(byType['Backend Architect']);
+      assert.equal(byType['Backend Architect'].division, 'engineering');
+      assert.equal(byType['Backend Architect'].name, 'Backend Architect');
+      assert.equal(byType['Backend Architect'].fileId, 'engineering-backend-architect');
+      assert.equal(byType['Backend Architect'].file, 'engineering-backend-architect.md');
 
-      assert.ok(byType['testing-api-tester']);
-      assert.equal(byType['testing-api-tester'].division, 'testing');
+      assert.ok(byType['API Tester']);
+      assert.equal(byType['API Tester'].division, 'testing');
 
-      assert.ok(byType['product-manager']);
-      assert.equal(byType['product-manager'].division, 'product');
+      assert.ok(byType['Product Manager']);
+      assert.equal(byType['Product Manager'].division, 'product');
     });
 
     it('returns 0 when .claude/agents/ is missing', async () => {
