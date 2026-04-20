@@ -91,12 +91,13 @@ Written to `.claude/agents/_index.json` after all agent files are copied. Contai
 {
   "generatedAt": "<ISO-8601 timestamp>",
   "source": "ai-dev-setup",
-  "note": "Authoritative map of Agency agents present in .claude/agents/. `subagentType` is the exact string to pass to Claude Code Task tool.",
+  "note": "Authoritative map of Agency agents present in .claude/agents/. `subagentType` (= frontmatter `name` field) is the exact string to pass as subagent_type to the Claude Code Task tool. `fileId` is the filename stem for reference only.",
   "count": 42,
   "agents": [
     {
       "file": "engineering-backend-architect.md",
-      "subagentType": "engineering-backend-architect",
+      "fileId": "engineering-backend-architect",
+      "subagentType": "Backend Architect",
       "division": "engineering",
       "name": "Backend Architect",
       "description": "..."
@@ -105,7 +106,7 @@ Written to `.claude/agents/_index.json` after all agent files are copied. Contai
 }
 ```
 
-`subagentType` is the filename without the `.md` extension. It is the exact string value to pass as `subagent_type` to the Claude Code `Task` tool. The index is sorted by `subagentType` alphabetically.
+`subagentType` is the frontmatter `name` field from the agent file — the exact string value to pass as `subagent_type` to the Claude Code `Task` tool. `fileId` is the filename stem (without `.md`) kept for reference. The index is sorted by `subagentType` alphabetically.
 
 Only `.md` files with valid YAML frontmatter (file starts with `---`) are included. Files without frontmatter are silently skipped.
 
@@ -146,7 +147,7 @@ Any resulting double slashes are collapsed to single slashes. After rewriting, t
 - [ ] `.claude/skills/` contains at least one skill subdirectory
 - [ ] `.claude/agents/` contains agent `.md` files from multiple divisions
 - [ ] `.claude/agents/_index.json` is valid JSON with `count > 0` and at least one `agents` entry
-- [ ] Every entry in `_index.json` has a non-empty `subagentType` matching the filename without `.md`
+- [ ] Every entry in `_index.json` has a non-empty `subagentType` matching the frontmatter `name` field (falling back to filename stem if name is absent), and a `fileId` matching the filename without `.md`
 - [ ] `.cursor-plugin/plugin.json` has all `./`-relative paths prefixed with `./vendor/superpowers/`
 - [ ] `.cursor/rules/` contains at least one `agency-*.mdc` file
 - [ ] Running with `--force` removes and re-clones vendor, overwrites destination files
