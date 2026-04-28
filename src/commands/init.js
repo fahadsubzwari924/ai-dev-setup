@@ -84,6 +84,7 @@ function formatDetectedLine(detected) {
  * @property {string|null} [platforms]
  * @property {string|null} [superpowersRef]
  * @property {string|null} [agencyRef]
+ * @property {'core'|'full'|null} [skills]
  */
 
 /**
@@ -107,11 +108,13 @@ function resolveVendorRefs(flags) {
  */
 async function executeVendorInstall(cwd, platformKeys, flags) {
   const { superpowersRef, agencyRef } = resolveVendorRefs(flags);
+  const skillsProfile = flags.skills === 'full' ? 'full' : 'core';
   const vendorLog = await installVendors(cwd, {
     platformKeys,
     force: Boolean(flags.force),
     superpowersRef,
     agencyRef,
+    skillsProfile,
   });
   for (const line of vendorLog) {
     console.log(`  ${line}`);

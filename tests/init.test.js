@@ -53,6 +53,7 @@ describe('init command', () => {
       '.ai/rules.md',
       '.ai/workflow.md',
       '.ai/agents.md',
+      '.ai/CONTRACT.md',
       'docs/ARCHITECTURE.md',
       'docs/CONVENTIONS.md',
       'docs/TESTING-STRATEGY.md',

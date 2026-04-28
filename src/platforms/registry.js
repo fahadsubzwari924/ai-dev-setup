@@ -32,11 +32,14 @@ function tpl(rel) {
  * @param {Record<string, unknown>} config
  */
 export async function getSharedFiles(config) {
+  const operatingContract = await renderFile(tpl('shared/operating-contract.md.tmpl'), config);
+  const mergedConfig = { ...config, operatingContract };
   /** @type {Array<{ template: string, out: string }>} */
   const map = [
     { template: 'shared/rules.md.tmpl', out: '.ai/rules.md' },
     { template: 'shared/workflow.md.tmpl', out: '.ai/workflow.md' },
     { template: 'shared/agents.md.tmpl', out: '.ai/agents.md' },
+    { template: 'shared/contract.md.tmpl', out: '.ai/CONTRACT.md' },
     { template: 'shared/docs/architecture.md.tmpl', out: 'docs/ARCHITECTURE.md' },
     { template: 'shared/docs/conventions.md.tmpl', out: 'docs/CONVENTIONS.md' },
     { template: 'shared/docs/testing.md.tmpl', out: 'docs/TESTING-STRATEGY.md' },
@@ -47,7 +50,7 @@ export async function getSharedFiles(config) {
 
   const out = [];
   for (const { template, out: dest } of map) {
-    const content = await renderFile(tpl(template), config);
+    const content = await renderFile(tpl(template), mergedConfig);
     out.push({ path: dest, content });
   }
   return out;

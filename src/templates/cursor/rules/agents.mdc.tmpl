@@ -1,80 +1,16 @@
 ---
-description: Specialist agent usage for {{PROJECT_NAME}} (Agency + .ai/agents.md)
-globs: ""
+description: Default operating contract — Superpowers + Agency; applies to every code/file change request
+globs: "**/*"
 alwaysApply: false
 ---
 
 # Agents
 
-## How Agency binding works in Cursor
+Operating contract: see `.ai/CONTRACT.md` (loaded by hooks/rules).
 
-Agency specialist rules live in `.cursor/rules/agency-*.mdc`. Cursor does **not** have a `subagent_type` parameter — the equivalent mechanism is **including `@agency-<slug>.mdc` in the task prompt** sent to each implementation agent. That reference causes Cursor to load the full specialist rule (persona, constraints, anti-patterns, deliverable templates) into the agent's context.
-
-**Critical:** Agency Cursor slugs come from each agent's frontmatter `name:` field, slugified — **not** from the upstream filename. So `engineering-backend-architect.md` → `agency-backend-architect.mdc`. Do **not** use division-prefixed Cursor names like `@agency-engineering-backend-architect.mdc` — they do not exist.
-
-## Superpowers override (non-negotiable)
-
-`.claude/skills/subagent-driven-development/implementer-prompt.md` shows `Task tool (general-purpose)`. In Cursor this means dispatch a new agent session with no specialist attached. **You MUST instead prepend the matching `@agency-<slug>.mdc` reference** at the top of every implementation task prompt you send. The Superpowers body (task text, context, self-review protocol, status reporting) still applies in full — only the persona binding is added.
-
-Example of correct task prompt structure:
-
-```
-@agency-backend-architect.mdc
-
-You are implementing Task N: [task name]
-
-## Task Description
-[FULL TEXT of task from plan...]
-
-## Context
-[scene-setting: where this fits, dependencies, architectural context]
-
-[... rest of Superpowers implementer-prompt.md template ...]
-```
-
-Without the `@agency-*.mdc` line, the agent has no specialist constraints and produces generic output. The `@` reference is what loads the 200+ lines of persona — it is not cosmetic.
-
-## Dispatch rules
-
-- **EVERY implementation task prompt** must start with the matching `@agency-<slug>.mdc` reference
-- **Superpowers reviewer subagents** (spec-compliance, code-quality) keep their Superpowers role — do **not** prepend Agency rules to those
-- **Plan is silent on roles?** Map tasks using `.ai/agents.md` before dispatching — then prepend the resolved rule
-- **Missing rule?** If the `@agency-*.mdc` file is not present in `.cursor/rules/`, run `npx ai-dev-setup init --vendor-only --force` to regenerate. Do not proceed without it
-
-## Common role → Cursor rule map
-
-> See `.ai/agents.md` for the full reference. Cursor slugs differ from Claude Code filenames.
-
-| Task focus | Cursor rule |
-|------------|-------------|
-| API / backend / server logic | `@agency-backend-architect.mdc` |
-| UI / frontend / components | `@agency-frontend-developer.mdc` |
-| Tests / API testing | `@agency-api-tester.mdc` |
-| Performance / benchmarking | `@agency-performance-benchmarker.mdc` |
-| Infra / CI / scripts | `@agency-devops-automator.mdc` |
-| System architecture | `@agency-software-architect.mdc` |
-| Senior generalist dev | `@agency-senior-developer.mdc` |
-| Code review | `@agency-code-reviewer.mdc` |
-| Security review | `@agency-security-engineer.mdc` |
-| Documentation | `@agency-technical-writer.mdc` |
-| Product / requirements | `@agency-product-manager.mdc` |
-
-## Docs to load before implementing
-
-Before the specialist begins any task, load the docs that apply to the work. Do not start writing code without reading the relevant doc first.
-
-| Work type | Must read before starting |
-|-----------|--------------------------|
-| Creating or editing any `src/` file | `docs/CONVENTIONS.md` — layer rules, naming, directory placement |
-| API/HTTP routes, controllers, services | `docs/API-PATTERNS.md` — validation contract, layer boundaries |
-| Error handling or logging | `docs/ERROR-HANDLING.md` |
-| Auth, secrets, or user-input handling | `docs/SECURITY.md` |
-| Tests | `docs/TESTING-STRATEGY.md` |
-| Architectural or cross-module change | `docs/ARCHITECTURE.md` |
-
-## Anti-patterns
-
-- Sending a task prompt with only "You are operating as Backend Architect — ..." invented inline. That 1-line description is not the agent file — the full file has critical rules, deliverable templates, and quality standards.
-- Using Claude Code filenames (`engineering-backend-architect`) in Cursor `@` references — those files are not in `.cursor/rules/`.
-- Skipping Agency binding for "quick" tasks. Quality enforcement is in the agent file; skipping it consistently produces the quality degradation that Agency was installed to prevent.
-- One `@agency-*.mdc` at the top of a multi-task session used as a catch-all. Each dispatched task prompt must carry its own binding.
+Use this file when mapping task focus to specialist rules:
+- API/server: `@agency-backend-architect.mdc`
+- UI/components: `@agency-frontend-developer.mdc`
+- Tests: `@agency-api-tester.mdc`
+- Infra: `@agency-devops-automator.mdc`
+- Review: `@agency-code-reviewer.mdc`

@@ -91,13 +91,20 @@ Written to `.claude/agents/_index.json` after all agent files are copied. Contai
 {
   "generatedAt": "<ISO-8601 timestamp>",
   "source": "ai-dev-setup",
-  "note": "Authoritative map of Agency agents present in .claude/agents/. `subagentType` (= frontmatter `name` field) is the exact string to pass as subagent_type to the Claude Code Task tool. `fileId` is the filename stem for reference only.",
+  "schemaVersion": 2,
+  "note": "Authoritative map of Agency agents present in .claude/agents/. `subagentType` is the primary dispatch value and `subagentTypeCandidates` defines compatibility fallback order for environments where name matching differs.",
   "count": 42,
   "agents": [
     {
       "file": "engineering-backend-architect.md",
       "fileId": "engineering-backend-architect",
       "subagentType": "Backend Architect",
+      "subagentTypeCandidates": [
+        "Backend Architect",
+        "backend-architect",
+        "engineering-backend-architect"
+      ],
+      "cursorRule": "@agency-backend-architect.mdc",
       "division": "engineering",
       "name": "Backend Architect",
       "description": "..."
@@ -106,7 +113,7 @@ Written to `.claude/agents/_index.json` after all agent files are copied. Contai
 }
 ```
 
-`subagentType` is the frontmatter `name` field from the agent file — the exact string value to pass as `subagent_type` to the Claude Code `Task` tool. `fileId` is the filename stem (without `.md`) kept for reference. The index is sorted by `subagentType` alphabetically.
+`subagentType` is the primary value to dispatch with Claude Code `Task`. If runtime rejects that value, retry in `subagentTypeCandidates` order. `fileId` is the filename stem (without `.md`) and `cursorRule` is the generated Cursor rule reference. The index is sorted by `subagentType` alphabetically.
 
 Only `.md` files with valid YAML frontmatter (file starts with `---`) are included. Files without frontmatter are silently skipped.
 
@@ -147,7 +154,8 @@ Any resulting double slashes are collapsed to single slashes. After rewriting, t
 - [ ] `.claude/skills/` contains at least one skill subdirectory
 - [ ] `.claude/agents/` contains agent `.md` files from multiple divisions
 - [ ] `.claude/agents/_index.json` is valid JSON with `count > 0` and at least one `agents` entry
-- [ ] Every entry in `_index.json` has a non-empty `subagentType` matching the frontmatter `name` field (falling back to filename stem if name is absent), and a `fileId` matching the filename without `.md`
+- [ ] Every entry in `_index.json` has non-empty `subagentType`, non-empty `subagentTypeCandidates`, and `fileId` matching the filename without `.md`
+- [ ] Every entry includes `cursorRule` matching `@agency-<slug-from-name>.mdc`
 - [ ] `.cursor-plugin/plugin.json` has all `./`-relative paths prefixed with `./vendor/superpowers/`
 - [ ] `.cursor/rules/` contains at least one `agency-*.mdc` file
 - [ ] Running with `--force` removes and re-clones vendor, overwrites destination files
