@@ -53,6 +53,8 @@ const PLACEHOLDER_KEYS = [
   'LINT_CMD',
   'BUILD_CMD',
   'DATABASE',
+  'OPERATING_CONTRACT',
+  'SUPERPOWERS_PREAMBLE',
 ];
 
 /**
@@ -67,6 +69,8 @@ function placeholderValue(key, config) {
     LINT_CMD: config.lintCmd,
     BUILD_CMD: config.buildCmd,
     DATABASE: config.database,
+    OPERATING_CONTRACT: config.operatingContract,
+    SUPERPOWERS_PREAMBLE: config.superpowersPreamble,
   };
   const v = map[key];
   return v == null ? '' : String(v);

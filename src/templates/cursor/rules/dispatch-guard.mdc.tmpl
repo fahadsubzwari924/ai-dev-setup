@@ -1,0 +1,27 @@
+---
+description: Dispatch guard — never implement without Agency binding
+globs: "**/*"
+alwaysApply: true
+---
+
+# Dispatch guard
+
+- Every implementation task must include the matching Agency rule reference first (for example `@agency-backend-architect.mdc`).
+- Never dispatch implementation work as a generic worker; bind a specialist from `.ai/agents.md`.
+- Superpowers reviewer gates (`spec-reviewer`, `code-quality-reviewer`) stay as Superpowers roles and are not remapped.
+
+## Mapping
+
+| Task focus | Cursor rule |
+|------------|-------------|
+| API / backend / server logic | `@agency-backend-architect.mdc` |
+| UI / frontend / components | `@agency-frontend-developer.mdc` |
+| Tests / API testing | `@agency-api-tester.mdc` |
+| Infra / CI / scripts | `@agency-devops-automator.mdc` |
+| Performance / benchmarking | `@agency-performance-benchmarker.mdc` |
+| System architecture | `@agency-software-architect.mdc` |
+| Code review | `@agency-code-reviewer.mdc` |
+| Security review | `@agency-security-engineer.mdc` |
+| Documentation | `@agency-technical-writer.mdc` |
+| Product / requirements | `@agency-product-manager.mdc` |
+| Senior generalist dev | `@agency-senior-developer.mdc` |

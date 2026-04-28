@@ -111,6 +111,19 @@ async function gitShallowClone(cwd, relDir, url, ref, force) {
  */
 const SUPERPOWERS_NEEDED_DIRS = ['skills', 'hooks', '.cursor-plugin'];
 const TYPESCRIPT_FILE_RE = /\.(?:[cm]?ts|tsx)$/i;
+const OVERLAY_MARKER = '<!-- ai-dev-setup-overlay -->';
+const IMPLEMENTER_REL = path.join('subagent-driven-development', 'implementer-prompt.md');
+const WRITING_PLANS_REL = path.join('writing-plans', 'SKILL.md');
+const IMPLEMENTER_ANCHOR = 'Task tool (general-purpose):';
+const CORE_SUPERPOWERS_SKILLS = new Set([
+  'using-superpowers',
+  'brainstorming',
+  'writing-plans',
+  'subagent-driven-development',
+  'systematic-debugging',
+  'verification-before-completion',
+  'requesting-code-review',
+]);
 
 /**
  * Remove TypeScript source/example files from a tree copied from upstream
@@ -134,6 +147,114 @@ export async function removeTypeScriptFilesRecursive(rootDir) {
     if (ent.isFile() && TYPESCRIPT_FILE_RE.test(ent.name)) {
       await fs.rm(full, { force: true });
     }
+  }
+}
+
+/**
+ * @param {string} skillsRoot
+ * @param {'core'|'full'} profile
+ * @returns {Promise<number>} number of removed skill directories
+ */
+export async function pruneSuperpowersSkills(skillsRoot, profile) {
+  if (profile !== 'core') return 0;
+  let entries;
+  try {
+    entries = await fs.readdir(skillsRoot, { withFileTypes: true });
+  } catch {
+    return 0;
+  }
+  let removed = 0;
+  for (const ent of entries) {
+    if (!ent.isDirectory()) continue;
+    if (CORE_SUPERPOWERS_SKILLS.has(ent.name)) continue;
+    await fs.rm(path.join(skillsRoot, ent.name), { recursive: true, force: true });
+    removed++;
+  }
+  return removed;
+}
+
+/**
+ * @param {string} skillsRoot absolute path to a skills directory
+ * @returns {Promise<boolean>} true when changed
+ */
+async function overlayImplementerPrompt(skillsRoot) {
+  const filePath = path.join(skillsRoot, IMPLEMENTER_REL);
+  let content;
+  try {
+    content = await fs.readFile(filePath, 'utf8');
+  } catch {
+    return false;
+  }
+  if (content.includes(OVERLAY_MARKER)) return false;
+  if (!content.includes(IMPLEMENTER_ANCHOR)) {
+    throw new Error(
+      `Superpowers upstream marker changed: missing "${IMPLEMENTER_ANCHOR}" in ${filePath}`,
+    );
+  }
+  const replacement = `${OVERLAY_MARKER}
+<MANDATORY>
+If the plan does not name a role for this task, map it via .ai/agents.md BEFORE dispatching.
+Never use "general-purpose" for implementation dispatch in this repository.
+Resolve the specialist from .claude/agents/_index.json and use its subagentType.
+</MANDATORY>
+
+Task tool — dispatch with the Agency specialist for this task:
+  subagent_type: <FROM .claude/agents/_index.json subagentType for the task role>
+  description: "Implement Task N: [task name]"
+  prompt: |`;
+  const updated = content.replace(IMPLEMENTER_ANCHOR, replacement);
+  await fs.writeFile(filePath, updated, 'utf8');
+  return true;
+}
+
+/**
+ * @param {string} skillsRoot absolute path to a skills directory
+ * @returns {Promise<boolean>} true when changed
+ */
+async function overlayWritingPlansSkill(skillsRoot) {
+  const filePath = path.join(skillsRoot, WRITING_PLANS_REL);
+  let content;
+  try {
+    content = await fs.readFile(filePath, 'utf8');
+  } catch {
+    return false;
+  }
+  if (content.includes(OVERLAY_MARKER)) return false;
+  if (!content.includes('Task Structure')) {
+    throw new Error(`Superpowers upstream marker changed: missing "Task Structure" in ${filePath}`);
+  }
+  const append = `
+
+${OVERLAY_MARKER}
+## ai-dev-setup project schema (overrides the example above for this repo)
+
+In this repository EVERY plan task MUST carry these fields:
+
+- **path** — file(s) touched
+- **intent** — one-line behavior goal
+- **verify** — exact command + expected outcome
+- **agency** — _index.json \`subagentType\` value (Claude Code) AND \`cursorRule\` (Cursor) — never \`general-purpose\`
+- **docs** — files to read first (CONVENTIONS.md / API-PATTERNS.md / SECURITY.md / ...)
+
+A plan with any task missing \`agency\` or \`docs\` is incomplete and MUST NOT be emitted.
+`;
+  await fs.writeFile(filePath, `${content.trimEnd()}${append}\n`, 'utf8');
+  return true;
+}
+
+/**
+ * Apply deterministic ai-dev-setup overlays on top of upstream Superpowers files.
+ * Fails loudly when upstream markers change so CI catches breakage quickly.
+ *
+ * @param {string} superpowersRoot absolute vendor/superpowers root
+ * @param {string|null} claudeSkillsRoot absolute .claude/skills root (optional)
+ */
+export async function applyAgencyOverlays(superpowersRoot, claudeSkillsRoot = null) {
+  const skillsRoots = [path.join(superpowersRoot, 'skills')];
+  if (claudeSkillsRoot) skillsRoots.push(claudeSkillsRoot);
+  for (const skillsRoot of skillsRoots) {
+    await overlayImplementerPrompt(skillsRoot);
+    await overlayWritingPlansSkill(skillsRoot);
   }
 }
 
@@ -249,6 +370,19 @@ export async function readMarkdownFrontmatter(filePath) {
 }
 
 /**
+ * @param {string} value
+ */
+function slugifyAgentName(value) {
+  return value
+    .normalize('NFKD')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+/**
  * Scan `.claude/agents/` and write `_index.json` mapping each present agent file
  * to its `subagent_type` (filename minus `.md`), division, and frontmatter metadata.
  *
@@ -267,7 +401,16 @@ export async function writeAgencyIndex(projectRoot) {
   } catch {
     return 0;
   }
-  /** @type {Array<{ file: string, subagentType: string, division: string|null, name: string, description: string }>} */
+  /** @type {Array<{
+   *   file: string,
+   *   fileId: string,
+   *   division: string|null,
+   *   name: string,
+   *   description: string,
+   *   subagentType: string,
+   *   subagentTypeCandidates: string[],
+   *   cursorRule: string
+   * }>} */
   const agents = [];
   for (const ent of entries) {
     if (!ent.isFile() || !ent.name.endsWith('.md')) continue;
@@ -277,27 +420,62 @@ export async function writeAgencyIndex(projectRoot) {
     const fm = await readMarkdownFrontmatter(full);
     const base = ent.name.slice(0, -3);
     const divMatch = base.match(/^([a-z0-9]+)-/);
-    const agentName = fm.name || base;
+    const agentName = (fm.name || '').trim() || base;
+    const slugFromName = slugifyAgentName(agentName);
+    const unprefixedFileId = base.replace(/^[a-z0-9]+-/, '');
+    const compatibilityCandidates = [
+      agentName,
+      slugFromName,
+      base,
+      unprefixedFileId,
+    ].filter(Boolean);
+    const seen = new Set();
+    const subagentTypeCandidates = compatibilityCandidates.filter((candidate) => {
+      if (seen.has(candidate)) return false;
+      seen.add(candidate);
+      return true;
+    });
+    const preferredSubagentType = agentName;
     agents.push({
       file: ent.name,
       fileId: base,
-      subagentType: agentName,
       division: divMatch ? divMatch[1] : null,
       name: agentName,
       description: fm.description || '',
+      subagentType: preferredSubagentType,
+      subagentTypeCandidates,
+      cursorRule: `@agency-${slugFromName}.mdc`,
     });
   }
   agents.sort((a, b) => a.subagentType.localeCompare(b.subagentType));
   const manifest = {
     generatedAt: new Date().toISOString(),
     source: 'ai-dev-setup',
-    note: 'Authoritative map of Agency agents present in .claude/agents/. `subagentType` (= frontmatter `name` field) is the exact string to pass as subagent_type to the Claude Code Task tool. `fileId` is the filename stem for reference only. Regenerated by `ai-dev-setup init --vendor-only`.',
+    schemaVersion: 2,
+    note: 'Authoritative map of Agency agents present in .claude/agents/. `subagentType` is the primary dispatch value, and `subagentTypeCandidates` is the compatibility fallback order for environments where matching behavior differs. Regenerated by `ai-dev-setup init --vendor-only`.',
     count: agents.length,
     agents,
   };
   await fs.writeFile(
     path.join(agentsDir, '_index.json'),
     `${JSON.stringify(manifest, null, 2)}\n`,
+    'utf8',
+  );
+  const byTask = {
+    api: 'Backend Architect',
+    ui: 'Frontend Developer',
+    tests: 'API Tester',
+    perf: 'Performance Benchmarker',
+    infra: 'DevOps Automator',
+    arch: 'Software Architect',
+    docs: 'Technical Writer',
+    security: 'Security Engineer',
+    review: 'Code Reviewer',
+    generalist: 'Senior Developer',
+  };
+  await fs.writeFile(
+    path.join(agentsDir, '_index.dispatch.json'),
+    `${JSON.stringify({ schemaVersion: 1, byTask }, null, 2)}\n`,
     'utf8',
   );
   return agents.length;
@@ -456,10 +634,12 @@ export async function writeSuperpowersCursorPluginFile(projectRoot, superpowersR
  * @param {boolean} options.force
  * @param {string} options.superpowersRef
  * @param {string} options.agencyRef
+ * @param {'core'|'full'} [options.skillsProfile]
  * @returns {Promise<string[]>} log lines
  */
 export async function installVendors(projectRoot, options) {
   const { platformKeys, force } = options;
+  const skillsProfile = options.skillsProfile === 'full' ? 'full' : 'core';
   const superpowersRef = assertSafeGitRef(
     options.superpowersRef != null && options.superpowersRef !== ''
       ? String(options.superpowersRef)
@@ -485,6 +665,11 @@ export async function installVendors(projectRoot, options) {
 
   const superAbs = path.join(projectRoot, spRel);
   const agencyAbs = path.join(projectRoot, agRel);
+  const removedSkills = await pruneSuperpowersSkills(path.join(superAbs, 'skills'), skillsProfile);
+  if (skillsProfile === 'core') {
+    lines.push(`+ vendor/superpowers/skills (core profile; pruned ${removedSkills} optional skills)`);
+  }
+  await applyAgencyOverlays(superAbs, null);
 
   if (wantCursor) {
     await writeSuperpowersCursorPluginFile(projectRoot, superAbs);
@@ -494,6 +679,8 @@ export async function installVendors(projectRoot, options) {
   if (wantClaude) {
     const n = await copySuperpowersSkills(path.join(superAbs, 'skills'), path.join(projectRoot, '.claude', 'skills'), force);
     lines.push(`+ .claude/skills (${n} skill trees from Superpowers)`);
+    await applyAgencyOverlays(superAbs, path.join(projectRoot, '.claude', 'skills'));
+    lines.push('+ Superpowers skill overlays (implementer dispatch + plan schema)');
   }
 
   if (wantCursor) {
@@ -519,6 +706,7 @@ export async function installVendors(projectRoot, options) {
     lines.push(`+ .claude/agents (${n} agent files from Agency)`);
     const indexed = await writeAgencyIndex(projectRoot);
     lines.push(`+ .claude/agents/_index.json (${indexed} agents indexed — authoritative subagent_type map)`);
+    lines.push('+ .claude/agents/_index.dispatch.json (slim dispatch map for hooks)');
   }
 
   return lines;

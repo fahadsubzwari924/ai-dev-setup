@@ -1,40 +1,12 @@
 # {{PROJECT_NAME}} — Cursor
 
-## Core stack (required)
+<critical>
+{{OPERATING_CONTRACT}}
+</critical>
 
-| System | Location | Role |
-|--------|----------|------|
-| Superpowers | `vendor/superpowers/`, `.cursor-plugin/plugin.json` | Workflow engine — default for every task |
-| Agency Agents | `vendor/agency-agents/`, rules `agency-*.mdc` in `.cursor/rules/` | Specialist execution — default for every task |
-
-If `vendor/` or `.cursor-plugin/` is missing, run `npx ai-dev-setup init` without `--skip-vendor`.
-
-## Pointers (do not duplicate)
-
-| File | Purpose |
-|------|---------|
-| `.ai/rules.md` | Engineering principles (SOLID, DRY, KISS, YAGNI), anti-patterns, layer rules |
-| `.ai/workflow.md` | Lifecycle, TDD, review checklist |
-| `.ai/agents.md` | Specialist activation + quality expectations per role |
-| `docs/CONVENTIONS.md` | Stack-specific patterns: layer separation, constants, input validation |
-| `docs/API-PATTERNS.md` | HTTP layer responsibilities + validation contract — load on every API task |
-| `docs/*` | Other deep references—load only when relevant |
-
-## Project facts
-
-- Language: {{LANGUAGE}} — Framework: {{FRAMEWORK}} — DB: {{DATABASE}}
-- Commands: `{{TEST_CMD}}` · `{{LINT_CMD}}` · `{{BUILD_CMD}}`
-
-## Behavior
-
-- Answer briefly; cite paths instead of pasting large files
-- Prefer existing patterns in-repo over generic tutorials
-- After architectural change, update `docs/ARCHITECTURE.md` in the same change when behavior crosses modules
-- **Superpowers subagents / Task workers:** process comes from Superpowers; **implementation** workers still load the **Agency** role from `agency-*.mdc` / `.ai/agents.md` (plan-named role or mapped specialist)—not a generic implementer when Agency applies
-
-## Rules layout
-
-- `core-rules.mdc` — always on (keep lean)
-- `routing.mdc` — always on; Superpowers + Agency are the default for all tasks
-- `workflow.mdc`, `review.mdc`, `agents.mdc` — task-shaped detail (still follow defaults in `routing.mdc`)
-- `agency-*.mdc` — Agency specialist rules (on demand)
+- Stack: {{LANGUAGE}} / {{FRAMEWORK}} / {{DATABASE}}
+- Commands: `{{TEST_CMD}}`, `{{LINT_CMD}}`, `{{BUILD_CMD}}`
+- Standards: `.ai/rules.md`
+- Workflow: `.ai/workflow.md`
+- Agent map: `.ai/agents.md`
+- Contract source: `.ai/CONTRACT.md`

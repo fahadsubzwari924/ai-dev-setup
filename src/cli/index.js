@@ -1,6 +1,7 @@
 import { VERSION, PLATFORMS, STACKS } from '../constants.js';
 import { initCommand } from '../commands/init.js';
 import { updateCommand } from '../commands/update.js';
+import { auditTokensCommand } from '../commands/audit-tokens.js';
 import { bold, dim, green } from './logger.js';
 
 function printHelp() {
@@ -10,6 +11,7 @@ function printHelp() {
     dim('Usage:'),
     '  npx ai-dev-setup [init] [options]',
     '  npx ai-dev-setup update   (placeholder)',
+    '  npx ai-dev-setup audit-tokens',
     '',
     dim('Options:'),
     '  -y, --yes              Non-interactive: detect project + defaults, no prompts',
@@ -22,6 +24,7 @@ function printHelp() {
     '  --vendor-only          Only run vendor step (no template writes; for teammates / vendor in .gitignore)',
     '  --superpowers-ref=REF  Git branch/tag for obra/superpowers (default: main)',
     '  --agency-ref=REF       Git branch/tag for agency-agents (default: main)',
+    '  --skills=core|full     Superpowers skill profile (default: core)',
     '  -h, --help             Show help',
     '  -v, --version          Show version',
     '',
@@ -53,6 +56,7 @@ export function parseArgv(argv) {
     platforms: null,
     superpowersRef: null,
     agencyRef: null,
+    skills: null,
   };
   const positional = [];
 
@@ -98,6 +102,14 @@ export function parseArgv(argv) {
       flags.agencyRef = a.slice('--agency-ref='.length);
       continue;
     }
+    if (a.startsWith('--skills=')) {
+      const value = a.slice('--skills='.length);
+      if (value !== 'core' && value !== 'full') {
+        throw new Error('Invalid --skills value. Use --skills=core or --skills=full');
+      }
+      flags.skills = value;
+      continue;
+    }
     if (a.startsWith('-')) {
       throw new Error(`Unknown flag: ${a}`);
     }
@@ -135,6 +147,10 @@ export async function run(argv) {
   }
   if (cmd === 'update') {
     await updateCommand(flags);
+    return;
+  }
+  if (cmd === 'audit-tokens') {
+    await auditTokensCommand();
     return;
   }
 

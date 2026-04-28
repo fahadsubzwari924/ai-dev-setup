@@ -14,6 +14,8 @@ export class CursorPlatform extends Platform {
 
   /** @param {Record<string, unknown>} config */
   async getFiles(config) {
+    const operatingContract = await renderFile(tpl('shared/operating-contract.md.tmpl'), config);
+    const mergedConfig = { ...config, operatingContract };
     const pairs = [
       ['cursor/cursorrules.tmpl', '.cursorrules'],
       ['cursor/rules/core-rules.mdc.tmpl', '.cursor/rules/core-rules.mdc'],
@@ -21,11 +23,12 @@ export class CursorPlatform extends Platform {
       ['cursor/rules/workflow.mdc.tmpl', '.cursor/rules/workflow.mdc'],
       ['cursor/rules/review.mdc.tmpl', '.cursor/rules/review.mdc'],
       ['cursor/rules/agents.mdc.tmpl', '.cursor/rules/agents.mdc'],
+      ['cursor/rules/dispatch-guard.mdc.tmpl', '.cursor/rules/dispatch-guard.mdc'],
       ['ignore/cursorignore.tmpl', '.cursorignore'],
     ];
     const out = [];
     for (const [rel, dest] of pairs) {
-      const content = await renderFile(tpl(rel), config);
+      const content = await renderFile(tpl(rel), mergedConfig);
       out.push({ path: dest, content });
     }
     return out;
